@@ -4,5 +4,5 @@ View the live site [here](https://isabellaeichleronus-ac8fb.web.app).
 
 ## Tech stack
 - Frontend: React
-- Backend: WIP
+- Backend: Lightweight cloud functions
 - Deployment: Firebase
