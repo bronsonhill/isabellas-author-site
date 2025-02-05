@@ -1,6 +1,6 @@
 # Isabella's Author Site
 
-View the live site [here](https://isabellaeichleronus-ac8fb.web.app).
+View the live site [here](https://isabellaeichleronus.com)
 
 ## Tech stack
 - Frontend: React
