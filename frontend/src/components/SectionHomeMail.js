@@ -1,23 +1,60 @@
 import React, { useState } from 'react';
 import './SectionHomeMail.css';
 import useScrollAnimation from '../hooks/useScrollAnimation';
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 const SectionHomeMail = () => {
     const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
-    const [showNameField, setShowNameField] = useState(false);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [showNameFields, setShowNameFields] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [mailRef, isMailVisible] = useScrollAnimation(0.1);
 
     const handleEmailSubmit = (e) => {
         e.preventDefault();
-        setShowNameField(true);
+        setShowNameFields(true);
     };
 
-    const handleFinalSubmit = (e) => {
+    const handleFinalSubmit = async (e) => {
         e.preventDefault();
-        // TODO: Add mailing list integration
-        console.log('Subscription details:', { email, name });
+        setIsLoading(true);
+        
+        try {
+            const docRef = await addDoc(collection(db, "subscribers"), {
+                email,
+                firstName,
+                lastName,
+                timestamp: new Date()
+            });
+            console.log("Document written with ID: ", docRef.id);
+            setIsSuccess(true);
+            setEmail('');
+            setFirstName('');
+            setLastName('');
+            setShowNameFields(false);
+        } catch (error) {
+            console.error("Error adding document: ", error);
+            alert("Something went wrong. Please try again!");
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+    if (isSuccess) {
+        return (
+            <div className="mail-section-background">
+                <div className="mail-container">
+                    <section ref={mailRef} className={`mail-content scroll-animate ${isMailVisible ? 'visible' : ''}`}>
+                        <h2>Thank You!</h2>
+                        <p>You've successfully joined the mailing list.</p>
+                    </section>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="mail-section-background">
@@ -25,7 +62,7 @@ const SectionHomeMail = () => {
                 <section ref={mailRef} className={`mail-content scroll-animate ${isMailVisible ? 'visible' : ''}`}>
                     <h2>Join the Journey</h2>
                     <p>Subscribe to receive updates about new work, blog posts and more.</p>
-                    <form onSubmit={showNameField ? handleFinalSubmit : handleEmailSubmit}>
+                    <form onSubmit={showNameFields ? handleFinalSubmit : handleEmailSubmit}>
                         <div className="form-fields">
                             <input
                                 type="email"
@@ -33,20 +70,29 @@ const SectionHomeMail = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter your email"
                                 required
-                                disabled={showNameField}
+                                disabled={showNameFields}
                             />
-                            {showNameField && (
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="Your name (optional)"
-                                    className="name-field"
-                                />
+                            {showNameFields && (
+                                <div className="name-fields">
+                                    <input
+                                        type="text"
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        placeholder="First name (optional)"
+                                        className="name-field"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={lastName}
+                                        onChange={(e) => setLastName(e.target.value)}
+                                        placeholder="Last name (optional)"
+                                        className="name-field"
+                                    />
+                                </div>
                             )}
                         </div>
-                        <button type="submit">
-                            {showNameField ? 'Complete Subscription' : 'Become a reader'}
+                        <button type="submit" disabled={isLoading}>
+                            {isLoading ? 'Subscribing...' : showNameFields ? 'Complete Subscription' : 'Become a reader'}
                         </button>
                     </form>
                 </section>

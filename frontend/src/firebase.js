@@ -5,19 +5,34 @@ import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
+// Debug environment variables
+console.log('Environment Variables:', {
+    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+});
+
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDo0Yi1NZhV2vKE8Op33LrI6fjZrhkDBN4",
-  authDomain: "isabellaeichleronus-ac8fb.firebaseapp.com",
-  projectId: "isabellaeichleronus-ac8fb",
-  storageBucket: "isabellaeichleronus-ac8fb.firebasestorage.app",
-  messagingSenderId: "385161622269",
-  appId: "1:385161622269:web:8218f0e1080d5ae8750494",
-  measurementId: "G-18FDCJGWJD"
+    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.REACT_APP_FIREBASE_APP_ID,
+    measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Only initialize analytics if we're in a browser environment and config is loaded
+let analytics = null;
+if (typeof window !== 'undefined' && firebaseConfig.projectId) {
+    analytics = getAnalytics(app);
+}
+
 const db = getFirestore(app);
+
+export { db };

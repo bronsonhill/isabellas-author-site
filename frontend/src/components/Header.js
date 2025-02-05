@@ -11,7 +11,7 @@ const Header = () => {
                     <li><a href="/">Home</a></li>
                     <li className="disabled"><a href="#" onClick={(e) => e.preventDefault()}>Portfolio</a></li>
                     <li className="disabled"><a href="#" onClick={(e) => e.preventDefault()}>Blogs</a></li>
-                    <li classname="social-glyph"><a href="https://www.instagram.com/bellieeichler">
+                    <li className="social-glyph"><a href="https://www.instagram.com/bellieeichler">
                         <img src={instagramIcon} alt="Instagram" className="social-icon" />
                     </a></li>
                 </ul>
