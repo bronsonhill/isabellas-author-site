@@ -51,12 +51,11 @@
     align-items: center; /* Align image and text vertically */
     /* padding: 40px 60px; */
     /* border-radius: 10px; */
-    transition: transform 0.3s ease-out;
+    transition: none; /* Remove auto-animation */
     justify-content: flex-start; /* Ensures text stays next to the image */
-    animation: none; /* Remove auto-animation */
-    opacity: 1; /* Change to 1 since animation handles the fade */
-    transform: translateX(0); /* Ensure final position is set after animation */
-    will-change: transform; /* Optimize for animations */
+    opacity: 0; /* Start hidden */
+    transform: translateX(100px) scale(1); /* Start off-screen horizontally */
+    transition: transform 0.6s ease-out, opacity 0.6s ease-out;
 
     h1 {
         font-size: 2rem;
@@ -69,19 +68,20 @@
     }
 }
 
-.scroll-animate {
-    opacity: 0;
-    transform: translateX(100px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.scroll-animate.visible {
+.about-section.visible {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
 }
 
+.about-section.visible:hover {
+    transform: translateX(0) scale(1.01);
+}
+
+/* Remove transform from hover since it's handled by the component class */
 .about-section:hover {
-    transform: scale(1.01); /* Simple scale without translation */
+    transform: scale(1.01);
+    /* Change only the scale by updating the custom property */
+    --scale: 1.01;
 }
 
 .about-content {
@@ -135,7 +135,22 @@
         justify-content: center;
         align-items: center;
         gap: 20px;
-        animation: slideInMobile 0.8s ease-out forwards;
+        opacity: 0;
+        transform: translateY(50px) scale(1); /* Slide in from below */
+        transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+    }
+
+    .about-section.visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    .about-section.visible:hover {
+        transform: translateY(0) scale(1.01);
+    }
+
+    .about-section:hover {
+        --scale: 1.01;
     }
 
     .about-content {

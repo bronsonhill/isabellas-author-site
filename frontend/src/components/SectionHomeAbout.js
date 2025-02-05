@@ -14,7 +14,7 @@ const HomeSection1 = () => {
           <img src={placeholderImage} alt="Profile Placeholder" className="profile-image" />
         </section>
         
-        <section ref={aboutRef} className={`about-section scroll-animate ${isAboutVisible ? 'visible' : ''}`}>
+        <section ref={aboutRef} className={`about-section ${isAboutVisible ? 'visible' : ''}`}>
           <h1>About Isabella</h1>
           <section className="about-content">
               <p>
