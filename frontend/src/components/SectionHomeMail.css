@@ -98,6 +98,12 @@
     background-color: var(--color-twilight);
 }
 
+.mail-content button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background-color: var(--color-terracotta);
+}
+
 .form-fields {
     display: flex;
     flex-direction: column;
@@ -107,6 +113,16 @@
 
 .name-field {
     animation: slideDown 0.3s ease-out forwards;
+}
+
+.name-fields {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.name-fields input {
+    flex: 1;
 }
 
 @media (max-width: 768px) {
@@ -133,5 +149,9 @@
     .mail-content button {
         padding-left: 20px;
         padding-right: 20px;
+    }
+
+    .name-fields {
+        flex-direction: column;
     }
 }
