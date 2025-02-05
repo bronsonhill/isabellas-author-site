@@ -1,0 +1,137 @@
+@keyframes slideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 50px;
+    }
+}
+
+.mail-section-background {
+    background-color: var(--color-sandstone-beige);
+    width: 100%;
+    padding: 60px 0;
+    /* margin-top: 40px; */
+}
+
+.mail-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.mail-content {
+    text-align: center;
+    animation: none; /* Remove auto-animation */
+}
+
+.scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-animate.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.mail-content h2 {
+    color: var(--color-terracotta);
+    font-size: 2rem;
+    margin-bottom: 20px;
+    margin-top: 0px;
+}
+
+.mail-content p {
+    color: var(--color-terracotta);
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+.mail-content form {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    max-width: 500px;
+    margin: 0 auto;
+    flex-direction: row;
+}
+
+.mail-content input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid var(--color-terra);
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: 'Georgia', serif;
+}
+
+.mail-content button {
+    padding: 12px 30px;
+    background-color: var(--color-terra);
+    color: var(--color-sandstone-beige);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: 'Georgia', serif;
+    transition: background-color 0.3s ease;
+}
+
+.mail-content button:hover {
+    background-color: var(--color-twilight);
+}
+
+.form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.name-field {
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+@media (max-width: 768px) {
+    .mail-section-background {
+        padding: 40px 0;
+    }
+
+    .mail-content form {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+
+    .form-fields {
+        width: 100%;
+    }
+
+    .mail-content input,
+    .mail-content button {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .mail-content button {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}

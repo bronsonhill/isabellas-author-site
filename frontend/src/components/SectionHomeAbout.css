@@ -1,0 +1,161 @@
+@keyframes slideIn {
+    0% {
+        opacity: 0.8;
+        transform: translateX(100px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.section-background {
+    background-color: var(--color-terra);
+    width: 100%;
+    margin: 0;
+    /* padding: 40px 0; */
+    min-height: 500px; /* Ensure minimum height for the section */
+    display: flex;
+    align-items: stretch;
+}
+
+.home-container {
+    max-width: 1200px;
+    /* gap: 30px; */
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+    padding: 0;
+    font-family: 'Georgia', serif;
+    color: var(--color-terracotta);
+}
+
+.home-intro {
+    height: 100%;
+    display: flex;
+}
+
+.image-section {
+    height: 100%;
+    display: flex;
+}
+
+.about-section {
+    flex: 1;
+    background-color: var(--color-sandstone-beige);
+    padding: 60px;
+    margin-left: -40px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column; /* Ensure horizontal alignment */
+    align-items: center; /* Align image and text vertically */
+    /* padding: 40px 60px; */
+    /* border-radius: 10px; */
+    transition: transform 0.3s ease-out;
+    justify-content: flex-start; /* Ensures text stays next to the image */
+    animation: none; /* Remove auto-animation */
+    opacity: 1; /* Change to 1 since animation handles the fade */
+    transform: translateX(0); /* Ensure final position is set after animation */
+    will-change: transform; /* Optimize for animations */
+
+    h1 {
+        font-size: 2rem;
+        margin-top: 0px;
+    }
+    a {
+        color: var(--color-twilight);
+        font-size: 1.2rem;
+        /* transition: color 0.3s ease; */
+    }
+}
+
+.scroll-animate {
+    opacity: 0;
+    transform: translateX(100px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-animate.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.about-section:hover {
+    transform: scale(1.01); /* Simple scale without translation */
+}
+
+.about-content {
+    flex: 1;
+    display: flex;
+    flex-direction: row; /* Ensure horizontal alignment */
+    align-items: center; /* Align image and text vertically */
+    gap: 30px; /* Space between image and text */
+    /* justify-content: flex-start; Ensures text stays next to the image */
+}
+
+/* Make sure the image stays properly proportioned */
+.profile-image {
+    width: 400px; /* Fixed width */
+    height: 100%; /* Maintain aspect ratio */
+    object-fit: cover; /* Prevent stretching */
+    border-radius: 0;
+    background-color: #d3d3d3;
+    flex-shrink: 0; /* Prevents the image from shrinking */
+    transition: none; /* Remove hover effect */
+    margin: 0;
+    object-position: top center; /* Default position */
+}
+
+.profile-image:hover {
+    transform: none; /* Remove hover effect */
+}
+
+/* Responsive behavior for smaller screens */
+@media (max-width: 768px) {
+    @keyframes slideInMobile {
+        0% {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .home-container {
+        flex-direction: column; /* Stack image and text */
+        gap: 40px; /* Increase spacing */
+    }
+    .about-section {
+        margin-left: 0;
+        padding: 30px 20px;
+        flex-direction: column; /* Stack image and text */
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        animation: slideInMobile 0.8s ease-out forwards;
+    }
+
+    .about-content {
+        flex-direction: column; /* Stack image and text */
+        gap: 0px; /* Increase spacing */
+    }
+
+    .profile-image {
+        width: 100%; /* Smaller image on mobile */
+        height: 300px; /* Reduce height on mobile for better proportions */
+        object-position: center 25%; /* Move focus point up slightly on mobile */
+    }
+
+    .about-text {
+        max-width: 90%; /* Ensure the text is readable */
+        text-align: center;
+    }
+
+    .section-background {
+        min-height: auto;
+        padding-bottom: 40px; /* Add terra-colored padding at bottom */
+    }
+}

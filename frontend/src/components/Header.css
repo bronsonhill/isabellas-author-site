@@ -1,0 +1,107 @@
+/* Header */
+header {
+    background-color: #293454;
+    font-family: 'Georgia', serif;
+    padding: 30px 40px;
+    color: var(--color-sandstone-beige);
+
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0px;
+    }
+    
+    nav ul {
+        list-style-type: none;
+        display: flex;
+        gap: 30px; /* Increase spacing */
+        padding: 0;
+        margin: 0;
+        align-items: center;
+    }
+    
+    nav li {
+        display: inline;
+        font-size: large;
+    }
+    
+    a {
+        color: var(--color-sandston-beige);
+        text-decoration: none;
+        /* font-size: large; */
+        transition: color 0.3s ease;
+    }
+    
+    nav a:hover {
+        color: rgb(161, 157, 146);
+    }
+    
+    /* Additional Styling Fixes */
+    h1 {
+        font-size: 2rem;
+        letter-spacing: 0.05em;
+        /* margin-top: 0px; */
+        text-align: center;
+        /* color: rgb(254, 249, 236); */
+    }
+    
+    .contact {
+        border-width: 2px;
+        border-style: solid;
+        border-color: antiquewhite;
+        margin-left: 15px;
+    }
+    
+    .vertical {
+        border-left: 2px solid rgb(254, 249, 236);
+    }
+    
+    
+
+    .disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .disabled a {
+        color: var(--color-sandstone-beige);
+        pointer-events: none;
+    }
+
+    .disabled:hover {
+        opacity: 0.5;
+    }
+
+    .social-icon {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        fill: var(--color-sandstone-beige);
+        transition: opacity 0.3s ease;
+    }
+
+    .social-icon:hover {
+        opacity: 0.8;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header-container {
+            flex-direction: column;
+            align-items: center;
+        }
+        nav ul {
+            flex-direction: column;
+            gap: 15px;
+        }
+        h1 {
+            font-size: 1.5rem;
+        }
+        .social-icon {
+            width: 20px;
+            height: 20px;
+        }
+    }
+    
+}

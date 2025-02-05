@@ -1,0 +1,28 @@
+.page {
+    max-width: 1200px;
+    align-items: center;
+    margin: auto;
+}
+
+@media (max-width: 1200px) {
+    .page {
+        margin-left: 40px;
+        margin-right: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page {
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+    
+}
+
+@media (max-width: 600px) {
+    .page {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+    
+}

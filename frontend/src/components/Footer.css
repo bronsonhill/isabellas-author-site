@@ -1,0 +1,32 @@
+footer {
+    background-color: var(--color-twilight);
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    /* border-top: 1px solid #eaeaea; */
+    font-family: 'Georgia', serif;
+    color: var(--color-sandstone-beige);
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+footer a {
+    color: var(--color-terra);
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    footer {
+        padding: 15px;
+    }
+    
+    footer p {
+        font-size: 0.8rem;
+    }
+}

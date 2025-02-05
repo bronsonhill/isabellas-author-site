@@ -1,0 +1,25 @@
+:root {
+  --primary-color: #333;
+  --secondary-color: #666;
+  --background-color: rgb(254, 249, 236);
+  --accent-color: #4a90e2;
+  --color-twilight: #293454;
+  --color-terracotta: #662507;
+  --color-terra: #B97453;
+  --color-sandstone-beige: #d9d0BD;
+  --font-family: Georgia, 'Times New Roman', serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--primary-color);
+  background-color: var(--background-color);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
