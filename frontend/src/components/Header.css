@@ -2,7 +2,10 @@
 header {
     background-color: var(--color-twilight);
     font-family: 'Georgia', serif;
-    padding: 30px 40px;
+    padding-left: 20px;
+    padding-right: 40px;
+    padding-top: 60px;
+    padding-bottom: 0px;
     color: var(--color-sandstone-beige);
 
     .header-container {
@@ -15,8 +18,9 @@ header {
     nav ul {
         list-style-type: none;
         display: flex;
-        gap: 30px; /* Increase spacing */
         padding: 0;
+        padding-top: 24px;
+        padding-bottom: 12px;
         margin: 0;
         align-items: center;
     }
@@ -31,17 +35,20 @@ header {
         text-decoration: none;
         /* font-size: large; */
         transition: color 0.3s ease;
+        padding: 13px
     }
     
     nav a:hover {
         color: rgb(161, 157, 146);
+        background-color: rgba(0, 0, 0, 0.35);
     }
     
     /* Additional Styling Fixes */
     h1 {
         font-size: 2.5rem;
         letter-spacing: 0.05em;
-        /* margin-top: 0px; */
+        margin-top: 0px;
+        margin-bottom: 0px;
         text-align: center;
         /* color: rgb(254, 249, 236); */
     }
