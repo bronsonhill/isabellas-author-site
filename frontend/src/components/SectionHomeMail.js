@@ -4,15 +4,19 @@ import './SectionHomeMail.css';
 import useScrollAnimation from '../hooks/useScrollAnimation';
 import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
+import countryList from 'react-select-country-list';
 
 const SectionHomeMail = () => {
     const [email, setEmail] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [country, setCountry] = useState('');
     const [showNameFields, setShowNameFields] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [mailRef, isMailVisible] = useScrollAnimation(0.1);
+    const countries = countryList().getData();
 
     const handleEmailSubmit = (e) => {
         e.preventDefault();
@@ -33,6 +37,8 @@ const SectionHomeMail = () => {
                 email,
                 firstName,
                 lastName,
+                phone,
+                country,
                 userId: user.uid, // Store the user ID
                 timestamp: new Date(),
             });
@@ -42,6 +48,8 @@ const SectionHomeMail = () => {
             setEmail('');
             setFirstName('');
             setLastName('');
+            setPhone('');
+            setCountry('');
             setShowNameFields(false);
         } catch (error) {
             console.error("Error adding document: ", error);
@@ -96,6 +104,25 @@ const SectionHomeMail = () => {
                                         placeholder="Last name (optional)"
                                         className="name-field"
                                     />
+                                    <input
+                                        type="text"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        placeholder="Phone number (optional)"
+                                        className="name-field"
+                                    />
+                                    <select
+                                        value={country}
+                                        onChange={(e) => setCountry(e.target.value)}
+                                        className="name-field"
+                                    >
+                                        <option value="">Select Country (optional)</option>
+                                        {countries.map((country) => (
+                                            <option key={country.value} value={country.label}>
+                                                {country.label}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             )}
                         </div>

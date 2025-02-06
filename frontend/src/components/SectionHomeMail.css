@@ -120,10 +120,27 @@
     display: flex;
     gap: 10px;
     width: 100%;
+    flex-wrap: wrap; /* Allow wrapping for better layout */
 }
 
-.name-fields input {
-    flex: 1;
+.name-fields input,
+.name-fields select {
+    flex: 1 1 45%; /* Adjust flex basis for better layout */
+    padding: 12px 20px;
+    border: 2px solid var(--color-terra);
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: 'Georgia', serif;
+}
+
+.name-fields select {
+    background-color: white;
+    appearance: none; /* Remove default dropdown arrow */
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    padding-right: 30px; /* Add space for dropdown arrow */
 }
 
 @media (max-width: 768px) {
