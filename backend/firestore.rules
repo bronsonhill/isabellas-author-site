@@ -1,12 +1,9 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /subscribers/{document} {
-      allow read: if false;
-      // allow write: if true;
-    }
-    match /{document=**} {
-      allow read, write: if false;
+    match /mailingList/{docId} {
+      // allow read: if true;
+      allow write: if request.auth != null; // Only authenticated users can write
     }
   }
 }
