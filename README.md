@@ -18,6 +18,7 @@ firebase deploy --only functions
 
 Testing options:
 ```
+firebase emulators:start  --project isabellaeichleronus-ac8fb
 firebase serve
 firebase serve --only hosting
 firebase serve --only functions
