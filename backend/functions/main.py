@@ -27,15 +27,16 @@ def addmessage(req: https_fn.Request) -> https_fn.Response:
 @https_fn.on_request()
 def save_contact(req: https_fn.Request) -> https_fn.Response:
     """Save contact information including email and optional personal details."""
-    email = req.json.get("email")
+    email = req.args.get("email")
     if email is None:
         return https_fn.Response("No email provided", status=400)
 
     contact_data = {
         "email": email,
-        "firstName": req.json.get("firstName", ""),
-        "lastName": req.json.get("lastName", ""),
-        "phone": req.json.get("phone", ""),
+        "firstName": req.args.get("firstName", ""),
+        "lastName": req.args.get("lastName", ""),
+        "phone": req.args.get("phone", ""),
+        "country": req.args.get("country", ""),
         "timestamp": firestore.SERVER_TIMESTAMP
     }
 
