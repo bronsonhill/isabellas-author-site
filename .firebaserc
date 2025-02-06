@@ -1,5 +1,11 @@
 {
   "projects": {
     "default": "isabellaeichleronus-ac8fb"
+  },
+  "targets": {},
+  "etags": {
+    "isabellaeichleronus-ac8fb": {
+      "extensionInstances": {}
+    }
   }
 }

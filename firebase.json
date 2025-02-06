@@ -1,12 +1,6 @@
 {
   "emulators": {
-    "dataconnect": {
-      "dataDir": "frontend/dataconnect/.dataconnect/pgliteData"
-    },
     "singleProjectMode": true
-  },
-  "dataconnect": {
-    "source": "frontend/dataconnect"
   },
   "firestore": {
     "rules": "backend/firestore.rules",
@@ -41,14 +35,8 @@
       }
     ]
   },
-  "storage": {
-    "rules": "frontend/storage.rules"
-  },
   "remoteconfig": {
-    "template": "frontend/remoteconfig.template.json"
+    "template": "remoteconfig.template.json"
   },
-  "extensions": {},
-  "database": {
-    "rules": "frontend/database.rules.json"
-  }
+  "extensions": {}
 }
