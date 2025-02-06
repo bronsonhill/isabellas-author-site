@@ -3,10 +3,17 @@
   --secondary-color: #666;
   --background-color: rgb(254, 249, 236);
   --accent-color: #4a90e2;
-  --color-twilight: #293454;
-  --color-terracotta: #662507;
-  --color-terra: #B97453;
-  --color-sandstone-beige: #d9d0BD;
+
+  /* --color-twilight: #293454; */
+  /* --color-terracotta: #662507; */
+  /* --color-terra: #B97453; */
+  /* --color-sandstone-beige: #d9d0BD; */
+
+  --color-twilight: #442D1C; /* cowhide cocoa */
+  --color-terracotta: #5474a1; /* Kashmir Blue */
+  --color-terra: #d9d0BD; /* Sandstone Beige */
+  --color-sandstone-beige: #f4efe4; /* Bella White */
+
   --font-family: Georgia, 'Times New Roman', serif;
 }
 

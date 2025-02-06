@@ -1,0 +1,54 @@
+{
+  "emulators": {
+    "dataconnect": {
+      "dataDir": "frontend/dataconnect/.dataconnect/pgliteData"
+    },
+    "singleProjectMode": true
+  },
+  "dataconnect": {
+    "source": "frontend/dataconnect"
+  },
+  "firestore": {
+    "rules": "backend/firestore.rules",
+    "indexes": "backend/firestore.indexes.json"
+  },
+  "functions": [
+    {
+      "source": "backend/functions",
+      "codebase": "default",
+      "runtime": "python310",
+      "predeploy": [],
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "hosting": {
+    "public": "frontend/build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "storage": {
+    "rules": "frontend/storage.rules"
+  },
+  "remoteconfig": {
+    "template": "frontend/remoteconfig.template.json"
+  },
+  "extensions": {},
+  "database": {
+    "rules": "frontend/database.rules.json"
+  }
+}

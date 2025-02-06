@@ -28,6 +28,10 @@
     padding: 0;
     font-family: 'Georgia', serif;
     color: var(--color-terracotta);
+    h2 {
+        color: var(--color-twilight);
+        font-size: 2rem;
+    }
 }
 
 .home-intro {
@@ -63,8 +67,7 @@
     }
     a {
         color: var(--color-twilight);
-        font-size: 1.2rem;
-        /* transition: color 0.3s ease; */
+        transition: color 0.3s ease;
     }
 }
 
@@ -91,6 +94,14 @@
     align-items: center; /* Align image and text vertically */
     gap: 30px; /* Space between image and text */
     /* justify-content: flex-start; Ensures text stays next to the image */
+    
+    a {
+        color: var(--color-terracotta);
+        text-decoration: none;
+
+        /* font-size: 1.2rem; */
+        /* transition: color 0.3s ease; */
+    }
 }
 
 /* Make sure the image stays properly proportioned */
@@ -138,6 +149,7 @@
         opacity: 0;
         transform: translateY(50px) scale(1); /* Slide in from below */
         transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+
     }
 
     .about-section.visible {

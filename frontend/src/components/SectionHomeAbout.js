@@ -15,7 +15,7 @@ const HomeSection1 = () => {
         </section>
         
         <section ref={aboutRef} className={`about-section ${isAboutVisible ? 'visible' : ''}`}>
-          <h1>About Isabella</h1>
+          <h2>About Isabella</h2>
           <section className="about-content">
               <p>
               Isabella Eichler-Onus is a proud Gunditjmara writer living in Naarm. She is studying a Bachelor of Creative

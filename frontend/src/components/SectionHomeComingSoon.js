@@ -22,8 +22,8 @@ const SectionHomeComingSoon = () => {
             <p>Explore my thoughts on writing, creativity, and cultural connection through regular blog posts.</p>
           </div>
           <div className="feature-card">
-            <h3>Book Reviews</h3>
-            <p>Discover new reads through my curated book recommendations and thoughtful reviews.</p>
+            <h3>More</h3>
+            <p>Coming soon, including some fun experimental projects.</p>
           </div>
         </div>
       </div>

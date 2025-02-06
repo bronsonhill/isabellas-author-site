@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getAuth, signInAnonymously } from "firebase/auth";
 import './SectionHomeMail.css';
 import useScrollAnimation from '../hooks/useScrollAnimation';
 import { db } from "../firebase";
@@ -21,14 +22,21 @@ const SectionHomeMail = () => {
     const handleFinalSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        
+    
         try {
-            const docRef = await addDoc(collection(db, "subscribers"), {
+            // Ensure user is authenticated anonymously
+            const auth = getAuth();
+            const user = auth.currentUser || (await signInAnonymously(auth)).user;
+    
+            // Add email to Firestore
+            const docRef = await addDoc(collection(db, "mailingList"), {
                 email,
                 firstName,
                 lastName,
-                timestamp: new Date()
+                userId: user.uid, // Store the user ID
+                timestamp: new Date(),
             });
+    
             console.log("Document written with ID: ", docRef.id);
             setIsSuccess(true);
             setEmail('');

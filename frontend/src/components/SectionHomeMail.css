@@ -25,7 +25,7 @@
 .mail-section-background {
     background-color: var(--color-sandstone-beige);
     width: 100%;
-    padding: 60px 0;
+    padding: 70px 0;
     /* margin-top: 40px; */
 }
 
@@ -52,7 +52,7 @@
 }
 
 .mail-content h2 {
-    color: var(--color-terracotta);
+    color: var(--color-twilight);
     font-size: 2rem;
     margin-bottom: 20px;
     margin-top: 0px;
@@ -85,7 +85,7 @@
 .mail-content button {
     padding: 12px 30px;
     background-color: var(--color-terra);
-    color: var(--color-sandstone-beige);
+    color: var(--color-terracotta);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -96,6 +96,7 @@
 
 .mail-content button:hover {
     background-color: var(--color-twilight);
+    color: var(--color-sandstone-beige);
 }
 
 .mail-content button:disabled {
