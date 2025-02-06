@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { getAuth, signInAnonymously } from "firebase/auth";
-import './SectionHomeMail.css';
-import useScrollAnimation from '../hooks/useScrollAnimation';
 import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
+import './SectionHomeMail.css';
+import useScrollAnimation from '../hooks/useScrollAnimation';
 import countryList from 'react-select-country-list';
 
 const SectionHomeMail = () => {

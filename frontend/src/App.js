@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { app } from "./firebase";
 import './App.css';
 import Home from './pages/Home';
-import Works from './pages/Works';
+import Portfolio from './pages/Portfolio';
 import Blogs from './pages/Blogs';
 import Footer from './components/Footer';
 import Header from './components/Header';
@@ -16,7 +16,7 @@ const App = () => {
           <Header />
           <Routes>
             <Route exact path="/" element={<Home />} />
-            <Route path="/works" element={<Works />} />
+            <Route path="/works" element={<Portfolio />} />
             <Route path="/blogs" element={<Blogs />} />
           </Routes>
           <Footer />
