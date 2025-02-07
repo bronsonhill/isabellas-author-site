@@ -19,7 +19,7 @@ const AboutSection = () => {
         
         <section 
           ref={aboutRef} 
-          className={`about-section ${isAboutVisible ? 'visible' : ''}`}
+          className={`about-section scroll-animation from-right ${isAboutVisible ? 'visible' : ''}`}
         >
           <h2>About Isabella</h2>
           <div className="about-content">

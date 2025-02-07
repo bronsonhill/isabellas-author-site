@@ -26,16 +26,16 @@ const UpcomingSection = () => {
       <div className="coming-soon-content">
         <h2 
           ref={titleRef} 
-          className={`scroll-animate ${isTitleVisible ? 'visible' : ''}`}
+          className={`section-title scroll-animation ${isTitleVisible ? 'visible' : ''}`}
         >
           Coming Soon
         </h2>
         <div 
           ref={gridRef} 
-          className={`features-grid scroll-animate ${isGridVisible ? 'visible' : ''}`}
+          className={`features-grid`}
         >
           {features.map((feature, index) => (
-            <div key={index} className="feature-card">
+            <div key={index} className={`feature-card scroll-animation interactive ${isGridVisible ? 'visible' : ''}`}>
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>
             </div>

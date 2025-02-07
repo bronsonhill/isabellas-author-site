@@ -1,0 +1,37 @@
+/* Global animation classes */
+.scroll-animation {
+    opacity: 0;
+    transform: translateY(30px);
+    scale: 0.95;
+    transition: transform 0.6s ease-out, opacity 0.6s ease-out, scale 0.6s ease-out, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.scroll-animation.from-right {
+    transform: translateX(30px);
+}
+
+.scroll-animation.visible {
+    opacity: 1;
+    transform: translateY(0);
+    scale: 1;
+}
+
+.scroll-animation.from-right.visible {
+    transform: translateX(0);
+}
+
+/* Hover effects for interactive elements */
+.scroll-animation.interactive:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+    .scroll-animation {
+        transform: translateY(20px);
+    }
+    
+    .scroll-animation.from-right {
+        transform: translateY(20px); /* Convert side animation to vertical on mobile */
+    }
+}

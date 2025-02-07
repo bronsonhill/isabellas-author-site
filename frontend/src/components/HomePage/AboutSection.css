@@ -13,28 +13,26 @@
     background-color: var(--color-terra);
     width: 100%;
     margin: 0;
-    /* padding: 40px 0; */
-    min-height: 500px; /* Ensure minimum height for the section */
+    min-height: 500px;
     display: flex;
     align-items: stretch;
 }
 
 .home-container {
     max-width: 1200px;
-    /* gap: 30px; */
     display: flex;
     align-items: center;
     margin: 0 auto;
     padding: 0;
     font-family: 'Georgia', serif;
     color: var(--color-terracotta);
+}
 
-    h2 {
-        color: var(--color-twilight);
-        font-size: 2rem;
-        margin-top: 0px;
-        margin-bottom: 40px;
-    }
+.home-container h2 {
+    color: var(--color-twilight);
+    font-size: 2rem;
+    margin-top: 0px;
+    margin-bottom: 40px;
 }
 
 .home-intro {
@@ -54,79 +52,52 @@
     margin-left: -40px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     display: flex;
-    /* max-height: 500px; */
-    flex-direction: column; /* Ensure horizontal alignment */
-    align-items: center; /* Align image and text vertically */
-    /* padding: 40px 60px; */
-    /* border-radius: 10px; */
-    transition: none; /* Remove auto-animation */
-    justify-content: flex-start; /* Ensures text stays next to the image */
-    opacity: 0; /* Start hidden */
-    transform: translateX(100px) scale(1); /* Start off-screen horizontally */
-    transition: transform 0.6s ease-out, opacity 0.6s ease-out;
-
-    h1 {
-        font-size: 2rem;
-        margin-top: 0px;
-    }
-    a {
-        color: var(--color-twilight);
-        transition: color 0.3s ease;
-    }
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    transition: transform 0.6s ease-out;
 }
 
-.about-section.visible {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-}
-
-.about-section.visible:hover {
-    transform: translateX(0) scale(1.01);
-}
-
-/* Remove transform from hover since it's handled by the component class */
 .about-section:hover {
-    transform: scale(1.01);
-    /* Change only the scale by updating the custom property */
-    --scale: 1.01;
+    transform: scale(1.02);
+}
+
+.about-section h1 {
+    font-size: 2rem;
+    margin-top: 0px;
+}
+
+.about-section a {
+    color: var(--color-twilight);
+    transition: color 0.3s ease;
 }
 
 .about-content {
     flex: 1;
     display: flex;
-    flex-direction: row; /* Ensure horizontal alignment */
-    align-items: center; /* Align image and text vertically */
-    gap: 30px; /* Space between image and text */
-    /* justify-content: flex-start; Ensures text stays next to the image */
-    
-    a {
-        color: var(--color-terracotta);
-        text-decoration: none;
-
-        /* font-size: 1.2rem; */
-        /* transition: color 0.3s ease; */
-    }
-
-    a:hover {
-        color: var(--color-twilight);
-    }
+    flex-direction: row;
+    align-items: center;
+    gap: 30px;
 }
 
-/* Make sure the image stays properly proportioned */
+.about-content a {
+    color: var(--color-terracotta);
+    text-decoration: none;
+}
+
+.about-content a:hover {
+    color: var(--color-twilight);
+}
+
 .profile-image {
-    width: 400px; /* Fixed width */
-    height: 100%; /* Maintain aspect ratio */
-    object-fit: cover; /* Prevent stretching */
+    width: 400px;
+    height: 100%;
+    object-fit: cover;
     border-radius: 0;
     background-color: #d3d3d3;
-    flex-shrink: 0; /* Prevents the image from shrinking */
-    transition: none; /* Remove hover effect */
+    flex-shrink: 0;
     margin: 0;
-    object-position: top center; /* Default position */
-}
-
-.profile-image:hover {
-    transform: none; /* Remove hover effect */
+    object-position: top center;
 }
 
 .columns {
@@ -135,9 +106,8 @@
 }
 
 .about-paragraph {
-    margin: 0; /* Reset margin */
-    padding: 0; /* Reset padding */
-    /* break-inside: avoid; */
+    margin: 0;
+    padding: 0;
 }
 
 @media (max-width: 992px) {
@@ -146,86 +116,55 @@
     }
 }
 
-/* Responsive behavior for smaller screens */
 @media (max-width: 768px) {
-    @keyframes slideInMobile {
-        0% {
-            opacity: 0;
-            transform: translateY(50px);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .home-container {
+        flex-direction: column;
+        gap: 40px;
     }
 
-    .home-container {
-        flex-direction: column; /* Stack image and text */
-        gap: 40px; /* Increase spacing */
-    }
     .about-section {
         margin-left: 0;
         padding: 30px 20px;
-        flex-direction: column; /* Stack image and text */
+        flex-direction: column;
         text-align: left;
         justify-content: center;
         align-items: center;
         gap: 20px;
-        opacity: 0;
-        transform: translateY(50px) scale(1); /* Slide in from below */
-        transition: transform 0.8s ease-out, opacity 0.8s ease-out;
-
-        h2 {
-            margin-bottom: 0px;
-        }
-
     }
 
-    .about-section.visible {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-
-    .about-section.visible:hover {
-        transform: translateY(0) scale(1.01);
-    }
-
-    .about-section:hover {
-        --scale: 1.01;
+    .about-section h2 {
+        margin-bottom: 0px;
     }
 
     .about-content {
-        flex-direction: column; /* Stack image and text */
-        gap: 0px; /* Increase spacing */
+        flex-direction: column;
+        gap: 0px;
     }
 
     .profile-image {
-        width: 100%; /* Smaller image on mobile */
-        height: 300px; /* Reduce height on mobile for better proportions */
-        object-position: center 25%; /* Move focus point up slightly on mobile */
+        width: 100%;
+        height: 300px;
+        object-position: center 25%;
     }
 
     .about-text {
-        max-width: 90%; /* Ensure the text is readable */
-        /* text-align: left; */
+        max-width: 90%;
     }
 
     .section-background {
         min-height: auto;
-        padding-bottom: 40px; /* Add terra-colored padding at bottom */
+        padding-bottom: 40px;
     }
 
     .about-paragraph {
         margin-top: 0px;
         margin-bottom: 0px;
     }
-
     
-
     .about-paragraph {
         margin-top: 0px;
         margin-bottom: 10px;
-        padding: 0; /* Reset padding */
+        padding: 0;
         display: block;
     }
 }

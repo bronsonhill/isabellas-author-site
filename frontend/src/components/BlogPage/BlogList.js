@@ -9,7 +9,7 @@ const BlogCard = ({ blog, onCardClick, onReadMore }) => {
     return (
         <article 
             ref={ref}
-            className={`blog-card ${isVisible ? 'visible' : ''}`}
+            className={`blog-card scroll-animation interactive ${isVisible ? 'visible' : ''}`}
             onClick={(e) => onCardClick(e, blog.id)}
         >
             <div className="blog-image">

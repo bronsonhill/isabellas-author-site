@@ -67,10 +67,10 @@ const Portfolio = () => {
     ];
 
     const PortfolioItemContent = ({ item }) => {
-        const [ref, isVisible] = useScrollAnimation(0.3);
+        const [ref, isVisible] = useScrollAnimation(0.1);
         
         return (
-            <article ref={ref} className={`portfolio-item ${isVisible ? 'visible' : ''}`}>
+            <article ref={ref} className={`portfolio-item scroll-animation interactive ${isVisible ? 'visible' : ''}`}>
                 <div className="portfolio-image">
                     <img src={item.imageUrl} alt={item.title} />
                 </div>

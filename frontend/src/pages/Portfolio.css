@@ -41,10 +41,6 @@
     background: var(--color-sandstone-beige);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    transition: transform 0.3s ease, opacity 0.6s ease-out, scale 0.6s ease-out, background-color 0.3s ease, box-shadow 0.3s ease;
-    opacity: 0;
-    transform: translateY(30px);
-    scale: 0.95;
 }
 
 .portfolio-item.visible {
@@ -54,9 +50,7 @@
 }
 
 .portfolio-item-link:hover .portfolio-item {
-    transform: translateY(-4px) scale(1.01);
     background-color: #e3dfd5;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .portfolio-image {
