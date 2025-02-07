@@ -10,8 +10,8 @@ const Header = () => {
             <nav>
                 <ul>
                     <li><Link to="/" className="nav-link">Home</Link></li>
-                    <li className="disabled"><Link to="#" onClick={(e) => e.preventDefault()} className="nav-link">Portfolio</Link></li>
-                    <li className="disabled"><Link to="#" onClick={(e) => e.preventDefault()} className="nav-link">Blog</Link></li>
+                    <li><Link  to="/portfolio" className="nav-link">Portfolio</Link> </li>
+                    <li><Link to="/blogs" className="nav-link">Blog</Link></li>
                     <li className="social-glyph">
                         <a href="https://www.instagram.com/bellieeichler" 
                            target="_blank" 

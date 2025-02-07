@@ -4,7 +4,8 @@ import { app } from "./firebase";
 import './App.css';
 import Home from './pages/Home';
 import Portfolio from './pages/Portfolio';
-import Blogs from './pages/Blogs';
+import Blog from './pages/Blog';
+import BlogPost from './components/BlogPage/BlogPost';
 import Layout from './components/Layout';
 
 const App = () => {
@@ -14,8 +15,9 @@ const App = () => {
         <Layout>
           <Routes>
             <Route exact path="/" element={<Home />} />
-            <Route path="/works" element={<Portfolio />} />
-            <Route path="/blogs" element={<Blogs />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/blogs" element={<Blog />} />
+            <Route path="/blogs/:id" element={<BlogPost />} />
           </Routes>
         </Layout>
       </Router>

@@ -3,7 +3,10 @@
 }
 
 .app-content {
-  /* background-color: #7f7f7f; */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-terra);
 }
 
 .App-logo {
@@ -21,4 +24,9 @@
 
 body {
   font-family: 'Georgia', serif;
+}
+
+.app {
+  min-height: 100vh;
+  background-color: var(--color-terra);
 }
