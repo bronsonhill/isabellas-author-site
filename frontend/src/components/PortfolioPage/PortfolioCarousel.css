@@ -17,12 +17,26 @@
     width: 100%;
     height: 100%;
     transition: transform 0.5s ease-in-out;
+    text-decoration: none;
+}
+
+.carousel-slide.clickable {
+    cursor: pointer;
+}
+
+.carousel-slide.clickable:hover img {
+    transform: scale(1.05);
+}
+
+.carousel-slide.clickable:hover .carousel-content {
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
 }
 
 .carousel-slide img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease-in-out;
 }
 
 .carousel-content {
@@ -33,6 +47,7 @@
     padding: 2rem;
     background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
     color: var(--color-sandstone-beige);
+    transition: background 0.3s ease;
 }
 
 .carousel-content h2 {
@@ -72,5 +87,9 @@
 
     .carousel-content h2 {
         font-size: 1.5rem;
+    }
+
+    .carousel-content {
+        padding: 1.5rem;
     }
 }
