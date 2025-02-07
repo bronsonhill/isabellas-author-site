@@ -14,11 +14,17 @@ import useScrollAnimation from '../../hooks/useScrollAnimation';
  * @param {string} props.item.date - Date or timeframe of the work
  * @param {string} props.item.description - Description of the work
  */
-const PortfolioItem = ({ item }) => {
+const PortfolioItem = ({ item, shouldAnimate = true }) => {
     const [ref, isVisible] = useScrollAnimation(0.1);
     
+    const animationClass = shouldAnimate ? 'scroll-animation interactive' : '';
+    const visibilityClass = shouldAnimate ? (isVisible ? 'visible' : '') : 'visible';
+    
     return (
-        <article ref={ref} className={`portfolio-item scroll-animation interactive ${isVisible ? 'visible' : ''}`}>
+        <article 
+            ref={shouldAnimate ? ref : undefined}
+            className={`portfolio-item ${animationClass} ${visibilityClass}`}
+        >
             <div className="portfolio-image">
                 <img src={item.imageUrl} alt={item.title} />
             </div>
@@ -40,7 +46,8 @@ PortfolioItem.propTypes = {
         description: PropTypes.string.isRequired,
         imageUrl: PropTypes.string.isRequired,
         link: PropTypes.string
-    }).isRequired
+    }).isRequired,
+    shouldAnimate: PropTypes.bool
 };
 
 export default PortfolioItem;

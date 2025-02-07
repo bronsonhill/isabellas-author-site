@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import useScrollAnimation from '../../hooks/useScrollAnimation';
+import { blogPosts } from '../../data/blogData';
 import './BlogList.css';
 
 /**
@@ -12,13 +13,16 @@ import './BlogList.css';
  * @param {Function} props.onCardClick - Handler for card click
  * @param {Function} props.onReadMore - Handler for read more button click
  */
-const BlogCard = ({ blog, onCardClick, onReadMore }) => {
+const BlogCard = ({ blog, onCardClick, onReadMore, shouldAnimate = true }) => {
     const [ref, isVisible] = useScrollAnimation(0.1);
+    
+    const animationClass = shouldAnimate ? 'scroll-animation interactive' : '';
+    const visibilityClass = shouldAnimate ? (isVisible ? 'visible' : '') : 'visible';
     
     return (
         <article 
-            ref={ref}
-            className={`blog-card scroll-animation interactive ${isVisible ? 'visible' : ''}`}
+            ref={shouldAnimate ? ref : undefined}
+            className={`blog-card ${animationClass} ${visibilityClass}`}
             onClick={(e) => onCardClick(e, blog.id)}
         >
             <div className="blog-image">
@@ -26,7 +30,7 @@ const BlogCard = ({ blog, onCardClick, onReadMore }) => {
             </div>
             <div className="blog-content">
                 <h2>{blog.title}</h2>
-                <p className="blog-date">{blog.date}</p>
+                <p className="blog-date">{blog.date} • {blog.readTime}</p>
                 <p className="blog-excerpt">{blog.excerpt}</p>
                 <button 
                     className="read-more" 
@@ -45,41 +49,21 @@ BlogCard.propTypes = {
         title: PropTypes.string.isRequired,
         date: PropTypes.string.isRequired,
         excerpt: PropTypes.string.isRequired,
-        imageUrl: PropTypes.string.isRequired
+        imageUrl: PropTypes.string.isRequired,
+        readTime: PropTypes.string.isRequired
     }).isRequired,
     onCardClick: PropTypes.func.isRequired,
-    onReadMore: PropTypes.func.isRequired
+    onReadMore: PropTypes.func.isRequired,
+    shouldAnimate: PropTypes.bool
 };
 
 const BlogList = () => {
     const navigate = useNavigate();
-    
-    const placeholderBlogs = [
-        {
-            id: 1,
-            title: "The Art of Storytelling",
-            date: "March 15, 2024",
-            excerpt: "Exploring the fundamental elements that make a story captivating and memorable...",
-            imageUrl: "https://placekitten.com/800/400"
-        },
-        {
-            id: 2,
-            title: "Character Development Tips",
-            date: "March 1, 2024",
-            excerpt: "Creating compelling characters that readers will connect with and remember...",
-            imageUrl: "https://placekitten.com/801/400"
-        },
-        {
-            id: 3,
-            title: "Writing Process Insights",
-            date: "February 15, 2024",
-            excerpt: "A behind-the-scenes look at my personal writing journey and creative process...",
-            imageUrl: "https://placekitten.com/802/400"
-        }
-    ];
+    const [visibleItems, setVisibleItems] = useState(3);
+    const itemsPerPage = 3;
+    const [animateFrom, setAnimateFrom] = useState(0);
 
     const handleCardClick = (e, blogId) => {
-        // Don't navigate if clicking the read more button
         if (e.target.className === 'read-more') {
             return;
         }
@@ -87,20 +71,40 @@ const BlogList = () => {
     };
 
     const handleReadMore = (e, blogId) => {
-        e.stopPropagation(); // Prevent card click
+        e.stopPropagation();
         navigate(`/blogs/${blogId}`);
     };
 
+    const showMoreItems = () => {
+        setAnimateFrom(visibleItems);
+        setVisibleItems(prev => Math.min(prev + itemsPerPage, blogPosts.length));
+    };
+
+    const displayedBlogs = blogPosts.slice(0, visibleItems);
+    const hasMoreItems = visibleItems < blogPosts.length;
+
     return (
         <div className="blog-list">
-            {placeholderBlogs.map(blog => (
+            {displayedBlogs.map((blog, index) => (
                 <BlogCard
                     key={blog.id}
                     blog={blog}
                     onCardClick={handleCardClick}
                     onReadMore={handleReadMore}
+                    shouldAnimate={index >= animateFrom}
                 />
             ))}
+            {hasMoreItems && (
+                <div className="load-more-container">
+                    <button 
+                        className="load-more-button"
+                        onClick={showMoreItems}
+                        aria-label={`Load ${Math.min(itemsPerPage, blogPosts.length - visibleItems)} more blog posts`}
+                    >
+                        Load More
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

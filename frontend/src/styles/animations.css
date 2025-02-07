@@ -26,6 +26,61 @@
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    margin: 3rem auto 1rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.6s ease-out forwards;
+    animation-delay: 0.3s;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.load-more-button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background-color: var(--color-terracotta);
+    color: var(--color-sandstone-beige);
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-family);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.load-more-button:hover,
+.load-more-button:focus-visible {
+    background-color: var(--color-twilight);
+    color: var(--color-sandstone-beige);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.load-more-button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-terra), 0 0 0 6px var(--color-twilight);
+}
+
+.load-more-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 768px) {
     .scroll-animation {
         transform: translateY(20px);
@@ -33,5 +88,21 @@
     
     .scroll-animation.from-right {
         transform: translateY(20px); /* Convert side animation to vertical on mobile */
+    }
+
+    .load-more-button {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .load-more-container {
+        margin: 2rem auto 0.5rem;
+    }
+    
+    .load-more-button {
+        padding: 0.7rem 1.8rem;
+        font-size: 0.9rem;
     }
 }

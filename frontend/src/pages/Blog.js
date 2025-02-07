@@ -8,7 +8,7 @@ const Blog = () => {
         <div className="blog-page-container">
             <main>
                 <h1 className="blog-page-heading">
-                    Latest Articles
+                    Latest Blogs
                 </h1>
                 <BlogList />
             </main>
