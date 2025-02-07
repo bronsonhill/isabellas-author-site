@@ -5,22 +5,19 @@ import './App.css';
 import Home from './pages/Home';
 import Portfolio from './pages/Portfolio';
 import Blogs from './pages/Blogs';
-import Footer from './components/Footer';
-import Header from './components/Header';
+import Layout from './components/Layout';
 
 const App = () => {
   return (
     <div className="app">
       <Router>
-        <div className="app-content">
-          <Header />
+        <Layout>
           <Routes>
             <Route exact path="/" element={<Home />} />
             <Route path="/works" element={<Portfolio />} />
             <Route path="/blogs" element={<Blogs />} />
           </Routes>
-          <Footer />
-        </div>
+        </Layout>
       </Router>
     </div>
   );
