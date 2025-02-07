@@ -1,22 +1,32 @@
 import React, { useState } from 'react';
 import { getAuth, signInAnonymously } from "firebase/auth";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
-import './SectionHomeMail.css';
-import useScrollAnimation from '../hooks/useScrollAnimation';
+import './NewsletterSection.css';
+import useScrollAnimation from '../../hooks/useScrollAnimation';
 import countryList from 'react-select-country-list';
 
-const SectionHomeMail = () => {
-    const [email, setEmail] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [country, setCountry] = useState('');
+const NewsletterSection = () => {
+    const [formData, setFormData] = useState({
+        email: '',
+        firstName: '',
+        lastName: '',
+        phone: '',
+        country: ''
+    });
     const [showNameFields, setShowNameFields] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [mailRef, isMailVisible] = useScrollAnimation(0.1);
     const countries = countryList().getData();
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
 
     const handleEmailSubmit = (e) => {
         e.preventDefault();
@@ -28,28 +38,23 @@ const SectionHomeMail = () => {
         setIsLoading(true);
     
         try {
-            // Ensure user is authenticated anonymously
             const auth = getAuth();
             const user = auth.currentUser || (await signInAnonymously(auth)).user;
     
-            // Add email to Firestore
-            const docRef = await addDoc(collection(db, "mailingList"), {
-                email,
-                firstName,
-                lastName,
-                phone,
-                country,
-                userId: user.uid, // Store the user ID
+            await addDoc(collection(db, "mailingList"), {
+                ...formData,
+                userId: user.uid,
                 timestamp: new Date(),
             });
     
-            console.log("Document written with ID: ", docRef.id);
             setIsSuccess(true);
-            setEmail('');
-            setFirstName('');
-            setLastName('');
-            setPhone('');
-            setCountry('');
+            setFormData({
+                email: '',
+                firstName: '',
+                lastName: '',
+                phone: '',
+                country: ''
+            });
             setShowNameFields(false);
         } catch (error) {
             console.error("Error adding document: ", error);
@@ -82,8 +87,9 @@ const SectionHomeMail = () => {
                         <div className="form-fields">
                             <input
                                 type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
                                 placeholder="Enter your email"
                                 required
                                 disabled={showNameFields}
@@ -92,43 +98,43 @@ const SectionHomeMail = () => {
                                 <div className="name-fields">
                                     <input
                                         type="text"
-                                        value={firstName}
-                                        onChange={(e) => setFirstName(e.target.value)}
-                                        placeholder="First name (optional)"
-                                        className="name-field"
+                                        name="firstName"
+                                        value={formData.firstName}
+                                        onChange={handleInputChange}
+                                        placeholder="First Name"
                                     />
                                     <input
                                         type="text"
-                                        value={lastName}
-                                        onChange={(e) => setLastName(e.target.value)}
-                                        placeholder="Last name (optional)"
-                                        className="name-field"
+                                        name="lastName"
+                                        value={formData.lastName}
+                                        onChange={handleInputChange}
+                                        placeholder="Last Name"
                                     />
                                     <input
-                                        type="text"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        placeholder="Phone number (optional)"
-                                        className="name-field"
+                                        type="tel"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleInputChange}
+                                        placeholder="Phone (optional)"
                                     />
                                     <select
-                                        value={country}
-                                        onChange={(e) => setCountry(e.target.value)}
-                                        className="name-field"
+                                        name="country"
+                                        value={formData.country}
+                                        onChange={handleInputChange}
                                     >
                                         <option value="">Select Country (optional)</option>
-                                        {countries.map((country) => (
-                                            <option key={country.value} value={country.label}>
+                                        {countries.map(country => (
+                                            <option key={country.value} value={country.value}>
                                                 {country.label}
                                             </option>
                                         ))}
                                     </select>
                                 </div>
                             )}
+                            <button type="submit" disabled={isLoading}>
+                                {isLoading ? 'Submitting...' : (showNameFields ? 'Submit' : 'Continue')}
+                            </button>
                         </div>
-                        <button type="submit" disabled={isLoading}>
-                            {isLoading ? 'Subscribing...' : showNameFields ? 'Complete Subscription' : 'Become a reader'}
-                        </button>
                     </form>
                 </section>
             </div>
@@ -136,4 +142,4 @@ const SectionHomeMail = () => {
     );
 };
 
-export default SectionHomeMail;
+export default NewsletterSection;

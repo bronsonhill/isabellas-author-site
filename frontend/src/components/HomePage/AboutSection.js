@@ -1,21 +1,28 @@
 import React from 'react';
-import './SectionHomeAbout.css';
-import placeholderImage from '../assets/main_portrait.JPG';
-import useScrollAnimation from '../hooks/useScrollAnimation';
+import './AboutSection.css';
+import placeholderImage from '../../assets/main_portrait.JPG';
+import useScrollAnimation from '../../hooks/useScrollAnimation';
 
-const HomeSection1 = () => {
+const AboutSection = () => {
   const [aboutRef, isAboutVisible] = useScrollAnimation(0.1);
 
   return (
     <div className="section-background">
-        <div className="home-container">
+      <div className="home-container">
         <section className="image-section">
-          <img src={placeholderImage} alt="Profile Placeholder" className="profile-image" />
+          <img 
+            src={placeholderImage} 
+            alt="Isabella Eichler-Onus" 
+            className="profile-image" 
+          />
         </section>
         
-        <section ref={aboutRef} className={`about-section ${isAboutVisible ? 'visible' : ''}`}>
+        <section 
+          ref={aboutRef} 
+          className={`about-section ${isAboutVisible ? 'visible' : ''}`}
+        >
           <h2>About Isabella</h2>
-          <section className="about-content">
+          <div className="about-content">
             <div className="columns">
               <p className="about-paragraph">
                 Isabella Eichler-Onus is a proud Gunditjmara writer living in Naarm (Melbourne). 
@@ -40,11 +47,11 @@ const HomeSection1 = () => {
                 <a href="https://www.instagram.com/bellieeichler" target="_blank" rel="noopener noreferrer">@bellieeichler</a>. 
               </p>
             </div>
-          </section>
+          </div>
         </section>
       </div>
     </div>
   );
 };
 
-export default HomeSection1;
+export default AboutSection;
