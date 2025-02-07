@@ -1,8 +1,17 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import useScrollAnimation from '../../hooks/useScrollAnimation';
 import './BlogList.css';
 
+/**
+ * BlogCard component displays a blog post preview with animation
+ * 
+ * @param {Object} props
+ * @param {Object} props.blog - Blog post data
+ * @param {Function} props.onCardClick - Handler for card click
+ * @param {Function} props.onReadMore - Handler for read more button click
+ */
 const BlogCard = ({ blog, onCardClick, onReadMore }) => {
     const [ref, isVisible] = useScrollAnimation(0.1);
     
@@ -28,6 +37,18 @@ const BlogCard = ({ blog, onCardClick, onReadMore }) => {
             </div>
         </article>
     );
+};
+
+BlogCard.propTypes = {
+    blog: PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        title: PropTypes.string.isRequired,
+        date: PropTypes.string.isRequired,
+        excerpt: PropTypes.string.isRequired,
+        imageUrl: PropTypes.string.isRequired
+    }).isRequired,
+    onCardClick: PropTypes.func.isRequired,
+    onReadMore: PropTypes.func.isRequired
 };
 
 const BlogList = () => {
