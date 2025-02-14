@@ -1,32 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import PortfolioItem from './PortfolioItem';
+import { fetchPortfolioItems } from '../../services/firebase';
 
 /**
  * PortfolioGrid component displays a grid of portfolio items
- * with load more functionality
- * 
- * @param {Object} props
- * @param {Array} props.items - Array of portfolio items to display
- * @param {number} [props.itemsPerPage=4] - Number of items to show per page
+ * with load more functionality and Firebase integration
  */
-const PortfolioGrid = ({ items, itemsPerPage = 4 }) => {
-    const [visibleItems, setVisibleItems] = useState(itemsPerPage);
+const PortfolioGrid = ({ itemsPerPage = 4 }) => {
+    const [items, setItems] = useState([]);
+    const [lastVisible, setLastVisible] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const [animateFrom, setAnimateFrom] = useState(0);
+
+    useEffect(() => {
+        loadInitialItems();
+    }, []);
+
+    const loadInitialItems = async () => {
+        try {
+            setLoading(true);
+            const { items: portfolioItems, lastVisible: last } = await fetchPortfolioItems(itemsPerPage);
+            setItems(portfolioItems);
+            setLastVisible(last);
+        } catch (err) {
+            setError('Failed to load portfolio items');
+            console.error('Error loading portfolio items:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
     
-    const showMoreItems = () => {
-        setAnimateFrom(visibleItems);
-        setVisibleItems(prev => Math.min(prev + itemsPerPage, items.length));
+    const showMoreItems = async () => {
+        if (!lastVisible || loading) return;
+
+        try {
+            setLoading(true);
+            setAnimateFrom(items.length);
+            const { items: newItems, lastVisible: last } = await fetchPortfolioItems(itemsPerPage, lastVisible);
+            setItems(prev => [...prev, ...newItems]);
+            setLastVisible(last);
+        } catch (err) {
+            setError('Failed to load more items');
+            console.error('Error loading more items:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const displayedItems = items.slice(0, visibleItems);
-    const hasMoreItems = visibleItems < items.length;
+    if (error) {
+        return (
+            <div className="portfolio-grid-error">
+                <p>{error}</p>
+                <button onClick={loadInitialItems}>Try Again</button>
+            </div>
+        );
+    }
 
     return (
         <section className="portfolio-grid">
-            <h2>Portfolio</h2>
+            <h2>Portfolio Works</h2>
             <div className="portfolio-items">
-                {displayedItems.map((item, index) => (
+                {items.map((item, index) => (
                     item.link ? (
                         <a 
                             key={item.id}
@@ -44,14 +80,15 @@ const PortfolioGrid = ({ items, itemsPerPage = 4 }) => {
                     )
                 ))}
             </div>
-            {hasMoreItems && (
+            {lastVisible && (
                 <div className="load-more-container">
                     <button 
                         className="load-more-button"
                         onClick={showMoreItems}
-                        aria-label={`Load ${Math.min(itemsPerPage, items.length - visibleItems)} more portfolio items`}
+                        disabled={loading}
+                        aria-label="Load more portfolio items"
                     >
-                        Load More
+                        {loading ? 'Loading...' : 'Load More'}
                     </button>
                 </div>
             )}
@@ -60,15 +97,6 @@ const PortfolioGrid = ({ items, itemsPerPage = 4 }) => {
 };
 
 PortfolioGrid.propTypes = {
-    items: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.number.isRequired,
-        title: PropTypes.string.isRequired,
-        category: PropTypes.string.isRequired,
-        date: PropTypes.string.isRequired,
-        description: PropTypes.string.isRequired,
-        imageUrl: PropTypes.string.isRequired,
-        link: PropTypes.string
-    })).isRequired,
     itemsPerPage: PropTypes.number
 };
 
