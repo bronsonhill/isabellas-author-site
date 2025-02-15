@@ -62,8 +62,16 @@ def add_cors_headers(response: https_fn.Response) -> https_fn.Response:
     return response
 
 @https_fn.on_request(region=REGION)
+def handle_options(req: https_fn.Request) -> https_fn.Response:
+    """Handle CORS preflight requests."""
+    response = https_fn.Response(status=204)
+    return add_cors_headers(response)
+
+@https_fn.on_request(region=REGION)
 def save_contact(req: https_fn.Request) -> https_fn.Response:
     """Save contact information including email and optional personal details."""
+    if req.method == 'OPTIONS':
+        return handle_options(req)
     email = req.args.get("email")
     if email is None:
         return https_fn.Response("No email provided", status=400)
@@ -84,58 +92,104 @@ def save_contact(req: https_fn.Request) -> https_fn.Response:
 @https_fn.on_request(region=REGION)
 def get_blogs(req: https_fn.Request) -> https_fn.Response:
     """Retrieve all blog posts or a single blog post if id is provided."""
-    blog_id = req.args.get("id")
-    page_size = req.args.get("pageSize", type=int)
-    last_visible = req.args.get("lastVisible")
+    if req.method == 'OPTIONS':
+        return handle_options(req)
+    
+    try:
+        # Parse the request data
+        data = json.loads(req.data.decode()) if req.data else {}
+        # Get the actual parameters from the data field that Cloud Functions uses
+        params = data.get('data', {})
+        
+        blog_id = params.get("id")
+        page_size = int(params.get("pageSize", 3))
+        last_visible = params.get("lastVisible")
 
-    if blog_id:
-        blog = get_document_by_id("blog", blog_id)
-        if not blog:
-            response = create_json_response({"error": "Blog post not found"}, 404)
-            return add_cors_headers(response)
-        response = create_json_response(blog)
-        return add_cors_headers(response)
+        # Basic query
+        query = get_firestore_client().collection("blog").order_by("date", direction=firestore.Query.DESCENDING)
 
-    query = get_firestore_client().collection("blog").order_by("date", direction=firestore.Query.DESCENDING)
+        # Handle pagination
+        if last_visible:
+            try:
+                last_doc = get_firestore_client().collection("blog").document(last_visible).get()
+                if last_doc.exists:
+                    query = query.start_after(last_doc)
+            except Exception as e:
+                print(f"Error with pagination: {e}")
+                return add_cors_headers(create_json_response({"error": "Invalid pagination cursor"}, 400))
 
-    if last_visible:
-        last_doc = get_firestore_client().collection("blog").document(last_visible).get()
-        query = query.start_after(last_doc)
-
-    if page_size:
+        # Get documents
         query = query.limit(page_size)
-
-    docs = query.stream()
-    blogs = [{"id": doc.id, **doc.to_dict()} for doc in docs]
-
-    response = create_json_response(blogs)
-    return add_cors_headers(response)
+        docs = list(query.stream())
+        blogs = [{"id": doc.id, **doc.to_dict()} for doc in docs]
+        
+        # Prepare response
+        response_data = {
+            "data": {
+                "items": blogs,
+                "lastVisible": docs[-1].id if docs else None
+            }
+        }
+        
+        return add_cors_headers(create_json_response(response_data))
+        
+    except Exception as e:
+        print(f"Error in get_blogs: {e}")
+        return add_cors_headers(create_json_response({"error": str(e)}, 500))
 
 @https_fn.on_request(region=REGION)
 def get_portfolio(req: https_fn.Request) -> https_fn.Response:
     """Retrieve all portfolio items or a single portfolio item if id is provided."""
-    portfolio_id = req.args.get("id")
+    if req.method == 'OPTIONS':
+        return handle_options(req)
     
-    if portfolio_id:
-        item = get_document_by_id("portfolio", portfolio_id)
-        if not item:
-            response = create_json_response({"error": "Portfolio item not found"}, 404)
-            return add_cors_headers(response)
-        response = create_json_response(item)
-        return add_cors_headers(response)
-    
-    items = get_all_documents("portfolio", order_by="date")
-    response = create_json_response(items)
-    return add_cors_headers(response)
+    try:
+        # Parse the request data
+        data = json.loads(req.data.decode()) if req.data else {}
+        # Get the actual parameters from the data field that Cloud Functions uses
+        params = data.get('data', {})
+        
+        portfolio_id = params.get("id")
+        page_size = int(params.get("pageSize", 6))
+        last_visible = params.get("lastVisible")
+        featured = params.get("featured", False)
 
-# @flask_app.route('/save_contact', methods=['GET'])
-# def save_contact_route():
-#     return save_contact(https_fn.Request())
+        if portfolio_id:
+            item = get_document_by_id("portfolio", portfolio_id)
+            if not item:
+                print(f"Portfolio item not found: {portfolio_id}")
+                return add_cors_headers(create_json_response({"error": "Portfolio item not found"}, 404))
+            print(f"Retrieved portfolio item: {item}")
+            return add_cors_headers(create_json_response({"data": item}))
 
-# @flask_app.route('/get_blogs', methods=['GET'])
-# def get_blogs_route():
-#     return get_blogs(https_fn.Request())
+        query = get_firestore_client().collection("portfolio").order_by("date", direction=firestore.Query.DESCENDING)
 
-# @flask_app.route('/get_portfolio', methods=['GET'])
-# def get_portfolio_route():
-#     return get_portfolio(https_fn.Request())
+        if featured:
+            query = query.where("featured", "==", True)
+
+        if last_visible:
+            try:
+                last_doc = get_firestore_client().collection("portfolio").document(last_visible).get()
+                if last_doc.exists:
+                    query = query.start_after(last_doc)
+            except Exception as e:
+                print(f"Error with pagination: {e}")
+                return add_cors_headers(create_json_response({"error": "Invalid pagination cursor"}, 400))
+
+        query = query.limit(page_size)
+        docs = list(query.stream())
+        items = [{"id": doc.id, **doc.to_dict()} for doc in docs]
+        
+        # Prepare response
+        response_data = {
+            "data": {
+                "items": items,
+                "lastVisible": docs[-1].id if docs else None
+            }
+        }
+        
+        return add_cors_headers(create_json_response(response_data))
+        
+    except Exception as e:
+        print(f"Error in get_portfolio: {e}")
+        return add_cors_headers(create_json_response({"error": str(e)}, 500))
