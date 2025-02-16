@@ -1,30 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import PortfolioCarousel from '../components/PortfolioPage/PortfolioCarousel';
 import PortfolioGrid from '../components/PortfolioPage/PortfolioGrid';
-import { fetchFeaturedItems } from '../services/firebase';
+import { fetchFeaturedItems, fetchPortfolioItems } from '../services/firebase';
 import './page.css';
 import './Portfolio.css';
 
-/**
- * Portfolio page component displaying featured works carousel 
- * and a grid of portfolio items
- */
 const Portfolio = () => {
     const [featuredItems, setFeaturedItems] = useState([]);
+    const [portfolioItems, setPortfolioItems] = useState([]);
+    const [lastVisible, setLastVisible] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [hasMore, setHasMore] = useState(true);
 
     useEffect(() => {
-        loadFeaturedItems();
+        loadInitialData();
     }, []);
 
-    const loadFeaturedItems = async () => {
+    const loadInitialData = async () => {
+        setLoading(true);
         try {
-            const items = await fetchFeaturedItems();
-            setFeaturedItems(items);
+            const [featured, portfolio] = await Promise.all([
+                fetchFeaturedItems(),
+                fetchPortfolioItems()
+            ]);
+            
+            console.log('Initial data loaded:', { featured, portfolio });
+            setFeaturedItems(featured || []);
+            setPortfolioItems(portfolio.items || []);
+            setLastVisible(portfolio.lastVisible);
+            setHasMore(portfolio.lastVisible !== null);
         } catch (err) {
-            setError('Failed to load featured items');
-            console.error('Error loading featured items:', err);
+            console.error('Error loading portfolio data:', err);
+            setError('Failed to load portfolio data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLoadMore = async () => {
+        if (!hasMore || loading) return;
+        
+        try {
+            setLoading(true);
+            console.log('Loading more items with lastVisible:', lastVisible);
+            const result = await fetchPortfolioItems(undefined, lastVisible);
+            
+            console.log('More items loaded:', result);
+            if (result.items && result.items.length > 0) {
+                setPortfolioItems(prev => [...prev, ...result.items]);
+                setLastVisible(result.lastVisible);
+                setHasMore(result.lastVisible !== null);
+            } else {
+                setHasMore(false);
+            }
+        } catch (err) {
+            console.error('Error loading more items:', err);
+            setError('Failed to load more items');
         } finally {
             setLoading(false);
         }
@@ -35,7 +67,7 @@ const Portfolio = () => {
             <div className="portfolio-page">
                 <div className="error-message">
                     <p>{error}</p>
-                    <button onClick={loadFeaturedItems}>Try Again</button>
+                    <button onClick={loadInitialData}>Try Again</button>
                 </div>
             </div>
         );
@@ -49,7 +81,12 @@ const Portfolio = () => {
                         <PortfolioCarousel items={featuredItems} />
                     </section>
                 )}
-                <PortfolioGrid />
+                <PortfolioGrid 
+                    items={portfolioItems}
+                    onLoadMore={handleLoadMore}
+                    hasMore={hasMore}
+                    loading={loading}
+                />
             </main>
         </div>
     );
