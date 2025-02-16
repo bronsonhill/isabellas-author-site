@@ -1,36 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { fetchBlogPost } from '../../services/firebase';
+import { useLocation, useParams } from 'react-router-dom';
 import BlogPostContent from './BlogPostContent';
+import { fetchBlogPost } from '../../services/firebase';
 
 const BlogPost = () => {
+    const location = useLocation();
     const { id } = useParams();
-    const [blogPost, setBlogPost] = useState(null);
-    const [error, setError] = useState(null);
+    const [blog, setBlog] = useState(location.state?.blog || null);
+    console.log('Blog post ID:', id);
 
     useEffect(() => {
-        const fetchBlogPostData = async () => {
-            try {
-                const data = await fetchBlogPost(id);
-                setBlogPost(data);
-            } catch (error) {
-                console.error("Error fetching blog post:", error);
-                setError("Failed to load blog post");
-            }
-        };
+        if (!blog) {
+            fetchBlogPost(id).then(fetchedBlog => {
+                setBlog(fetchedBlog);
+                console.log('Blog post:', fetchedBlog);
+            });
+        } else {
+            console.log('Blog post:', blog);
+        }
+    }, [blog, id]);
 
-        fetchBlogPostData();
-    }, [id]);
-
-    if (error) {
-        return <div className="blog-error">{error}</div>;
+    if (!blog) {
+        return <div>Loading...</div>;
     }
 
-    if (!blogPost) {
-        return <div className="blog-loading">Loading...</div>;
-    }
-
-    return <BlogPostContent post={blogPost} />;
+    return <BlogPostContent post={blog} />;
 };
 
 export default BlogPost;

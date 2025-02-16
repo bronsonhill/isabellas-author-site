@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import './BlogPostContent.css';
 
 const BlogPostContent = ({ post }) => {
+    // Remove the items array access since we'll receive the post directly
     const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -29,6 +30,7 @@ const BlogPostContent = ({ post }) => {
 
 BlogPostContent.propTypes = {
     post: PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         title: PropTypes.string.isRequired,
         date: PropTypes.string.isRequired,
         imageUrl: PropTypes.string,

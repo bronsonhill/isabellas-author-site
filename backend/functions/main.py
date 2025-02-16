@@ -69,73 +69,87 @@ def handle_options(req: https_fn.Request) -> https_fn.Response:
 
 @https_fn.on_request(region=REGION)
 def save_contact(req: https_fn.Request) -> https_fn.Response:
-    """Save contact information including email and optional personal details."""
     if req.method == 'OPTIONS':
         return handle_options(req)
-    email = req.args.get("email")
-    if email is None:
-        return https_fn.Response("No email provided", status=400)
 
-    contact_data = {
-        "email": email,
-        "firstName": req.args.get("firstName", ""),
-        "lastName": req.args.get("lastName", ""),
-        "phone": req.args.get("phone", ""),
-        "country": req.args.get("country", ""),
-        "timestamp": firestore.SERVER_TIMESTAMP
-    }
+    try:
+        data = json.loads(req.data.decode()) if req.data else {}
+        print(f'Received data: {data}')  # Add logging to inspect received data
+        contact_data = data.get('data', {})  # Extract nested data object
+        email = contact_data.get('email')
+        if not email:
+            return add_cors_headers(https_fn.Response(json.dumps({'error': 'No email provided'}), status=400, content_type='application/json'))
 
-    _, doc_ref = get_firestore_client().collection("contacts").add(contact_data)
-    response = https_fn.Response(f"Contact with ID {doc_ref.id} added.")
-    return add_cors_headers(response)
+        contact_data = {
+            'email': email,
+            'firstName': contact_data.get('firstName', ''),
+            'lastName': contact_data.get('lastName', ''),
+            'phone': contact_data.get('phone', ''),
+            'country': contact_data.get('country', ''),
+            'timestamp': firestore.SERVER_TIMESTAMP
+        }
+
+        _, doc_ref = get_firestore_client().collection('mailingList').add(contact_data)
+        response = https_fn.Response(json.dumps({'data': {'id': doc_ref.id}}), status=200, content_type='application/json')
+        return add_cors_headers(response)
+    except Exception as e:
+        print(f'Error saving contact: {e}')
+        return add_cors_headers(https_fn.Response(json.dumps({'error': 'Internal Server Error'}), status=500, content_type='application/json'))
 
 @https_fn.on_request(region=REGION)
 def get_blogs(req: https_fn.Request) -> https_fn.Response:
-    """Retrieve all blog posts or a single blog post if id is provided."""
     if req.method == 'OPTIONS':
         return handle_options(req)
-    
     try:
-        # Parse the request data
         data = json.loads(req.data.decode()) if req.data else {}
-        # Get the actual parameters from the data field that Cloud Functions uses
         params = data.get('data', {})
+        blog_id = params.get('id')
         
-        blog_id = params.get("id")
-        page_size = int(params.get("pageSize", 3))
-        last_visible = params.get("lastVisible")
-
-        # Basic query
-        query = get_firestore_client().collection("blog").order_by("date", direction=firestore.Query.DESCENDING)
-
-        # Handle pagination
+        print(f'Received blog_id: {blog_id}')  # Add logging to inspect received blog_id
+        
+        if blog_id:
+            blog = get_document_by_id('blog', blog_id)
+            if not blog:
+                return add_cors_headers(create_json_response({'error': 'Blog post not found'}, 404))
+            return add_cors_headers(create_json_response({'data': blog}))
+            
+        page_size = int(params.get('pageSize', 3))
+        last_visible = params.get('lastVisible')
+        query = get_firestore_client().collection('blog').order_by('date', direction=firestore.Query.DESCENDING)
+        
         if last_visible:
             try:
-                last_doc = get_firestore_client().collection("blog").document(last_visible).get()
+                last_doc = get_firestore_client().collection('blog').document(last_visible).get()
                 if last_doc.exists:
                     query = query.start_after(last_doc)
             except Exception as e:
-                print(f"Error with pagination: {e}")
-                return add_cors_headers(create_json_response({"error": "Invalid pagination cursor"}, 400))
-
-        # Get documents
+                print(f'Error with pagination: {e}')
+                return add_cors_headers(create_json_response({'error': 'Invalid pagination cursor'}, 400))
+                
         query = query.limit(page_size)
         docs = list(query.stream())
-        blogs = [{"id": doc.id, **doc.to_dict()} for doc in docs]
+        blogs = [{'id': doc.id, **doc.to_dict()} for doc in docs]
         
-        # Prepare response
+        # Handle empty results case
+        if not docs:
+            response_data = {
+                'data': {
+                    'items': [],
+                    'lastVisible': None
+                }
+            }
+            return add_cors_headers(create_json_response(response_data))
+            
         response_data = {
-            "data": {
-                "items": blogs,
-                "lastVisible": docs[-1].id if docs else None
+            'data': {
+                'items': blogs,
+                'lastVisible': docs[-1].id
             }
         }
-        
         return add_cors_headers(create_json_response(response_data))
-        
     except Exception as e:
-        print(f"Error in get_blogs: {e}")
-        return add_cors_headers(create_json_response({"error": str(e)}, 500))
+        print(f'Error in get_blogs: {e}')
+        return add_cors_headers(create_json_response({'error': str(e)}, 500))
 
 @https_fn.on_request(region=REGION)
 def get_portfolio(req: https_fn.Request) -> https_fn.Response:

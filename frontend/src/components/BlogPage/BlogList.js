@@ -15,50 +15,71 @@ const BlogList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [animateFrom, setAnimateFrom] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
     const itemsPerPage = 3;
 
     useEffect(() => {
         loadInitialPosts();
     }, []);
 
+    // Update animateFrom whenever posts length changes
+    useEffect(() => {
+        setAnimateFrom(posts.length - (posts.length % itemsPerPage || itemsPerPage));
+    }, [posts.length]);
+
     const loadInitialPosts = async () => {
         try {
             setLoading(true);
-            const { items, lastVisible: last } = await fetchBlogPosts(itemsPerPage);
-            setPosts(items);
-            setLastVisible(last);
+            const result = await fetchBlogPosts(itemsPerPage);
+            console.log('Initial posts loaded:', result);
+            if (result?.error) {
+                throw new Error(result.error);
+            }
+            setPosts(result?.items || []);
+            setLastVisible(result?.lastVisible);
+            setHasMore(result?.lastVisible !== null);
         } catch (err) {
-            setError('Failed to load blog posts');
             console.error('Error loading blog posts:', err);
+            setError(err?.message || 'Failed to load blog posts');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleCardClick = (e, blogId) => {
+    const handleCardClick = (e, blog) => {
         if (e.target.className === 'read-more') {
             return;
         }
-        navigate(`/blogs/${blogId}`);
+        navigate(`/blogs/${blog.id}`, { state: { blog } });
     };
 
-    const handleReadMore = (e, blogId) => {
+    const handleReadMore = (e, blog) => {
         e.stopPropagation();
-        navigate(`/blogs/${blogId}`);
+        navigate(`/blogs/${blog.id}`, { state: { blog } });
     };
 
     const showMoreItems = async () => {
-        if (!lastVisible || loading) return;
+        if (!hasMore || loading) return;
 
         try {
             setLoading(true);
             setAnimateFrom(posts.length);
-            const { items, lastVisible: last } = await fetchBlogPosts(itemsPerPage, lastVisible);
-            setPosts(prev => [...prev, ...items]);
-            setLastVisible(last);
+            const result = await fetchBlogPosts(itemsPerPage, lastVisible);
+            
+            if (result?.error) {
+                throw new Error(result.error);
+            }
+
+            if (result?.items?.length > 0) {
+                setPosts(prev => [...prev, ...result.items]);
+                setLastVisible(result.lastVisible);
+                setHasMore(result.lastVisible !== null);
+            } else {
+                setHasMore(false);
+            }
         } catch (err) {
-            setError('Failed to load more posts');
             console.error('Error loading more posts:', err);
+            setError(err?.message || 'Failed to load more posts');
         } finally {
             setLoading(false);
         }
@@ -88,7 +109,7 @@ const BlogList = () => {
                     shouldAnimate={index >= animateFrom}
                 />
             ))}
-            {lastVisible && (
+            {hasMore && (
                 <div className="load-more-container">
                     <button 
                         className="load-more-button"

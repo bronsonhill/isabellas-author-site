@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { getAuth, signInAnonymously } from "firebase/auth";
-import { db } from "../../firebase";
-import { collection, addDoc } from "firebase/firestore";
 import './NewsletterSection.css';
 import useScrollAnimation from '../../hooks/useScrollAnimation';
 import countryList from 'react-select-country-list';
+import { saveContactInfo } from '../../services/firebase';
 
 const NewsletterSection = () => {
     const [formData, setFormData] = useState({
@@ -36,17 +35,20 @@ const NewsletterSection = () => {
     const handleFinalSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-    
+
         try {
-            const auth = getAuth();
-            const user = auth.currentUser || (await signInAnonymously(auth)).user;
-    
-            await addDoc(collection(db, "mailingList"), {
-                ...formData,
-                userId: user.uid,
-                timestamp: new Date(),
+            const response = await saveContactInfo({
+                email: formData.email,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phone: formData.phone,
+                country: formData.country
             });
-    
+
+            if (!response.id) {
+                throw new Error('Failed to save contact');
+            }
+
             setIsSuccess(true);
             setFormData({
                 email: '',
@@ -57,8 +59,8 @@ const NewsletterSection = () => {
             });
             setShowNameFields(false);
         } catch (error) {
-            console.error("Error adding document: ", error);
-            alert("Something went wrong. Please try again!");
+            console.error('Error saving contact:', error);
+            alert('Something went wrong. Please try again!');
         } finally {
             setIsLoading(false);
         }
