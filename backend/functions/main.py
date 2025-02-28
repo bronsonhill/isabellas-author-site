@@ -1,7 +1,7 @@
 import os
 # The Cloud Functions for Firebase SDK to create Cloud Functions and set up triggers.
 from firebase_functions import firestore_fn, https_fn
-from firebase_admin import initialize_app, firestore
+from firebase_admin import initialize_app, firestore, storage
 import google.cloud.firestore
 from google.cloud.firestore_v1 import DocumentSnapshot
 from datetime import datetime
@@ -57,8 +57,8 @@ def get_all_documents(collection: str, order_by: str = None, direction: str = "D
 
 def add_cors_headers(response: https_fn.Response) -> https_fn.Response:
     response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+    response.headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
     return response
 
 @https_fn.on_request(region=REGION)
@@ -167,20 +167,45 @@ def get_portfolio(req: https_fn.Request) -> https_fn.Response:
         page_size = int(params.get("pageSize", 6))
         last_visible = params.get("lastVisible")
         featured = params.get("featured", False)
+        is_admin = params.get("isAdmin", False)  # Check if requester is admin
+        
+        print(f"Portfolio request - isAdmin: {is_admin}, id: {portfolio_id}, featured: {featured}")
 
         if portfolio_id:
+            # Retrieving a single portfolio item by ID
             item = get_document_by_id("portfolio", portfolio_id)
             if not item:
                 print(f"Portfolio item not found: {portfolio_id}")
                 return add_cors_headers(create_json_response({"error": "Portfolio item not found"}, 404))
-            print(f"Retrieved portfolio item: {item}")
-            return add_cors_headers(create_json_response({"data": item}))
+            
+            # Add ID to the item
+            item["id"] = portfolio_id
+            
+            # Check if item is published or user is admin
+            published_date = item.get('publishedDate')
+            if is_admin:
+                print(f"Admin access - retrieving portfolio item: {portfolio_id}")
+                return add_cors_headers(create_json_response({"data": item}))
+            elif is_published(published_date):
+                print(f"Published item retrieved: {portfolio_id}")
+                return add_cors_headers(create_json_response({"data": item}))
+            else:
+                print(f"Unpublished item access denied: {portfolio_id}")
+                return add_cors_headers(create_json_response({"error": "Portfolio item not available"}, 403))
 
-        query = get_firestore_client().collection("portfolio").order_by("date", direction=firestore.Query.DESCENDING)
+        # Creating the base query for listing portfolio items - order by publishedDate
+        query = get_firestore_client().collection("portfolio").order_by("publishedDate", direction=firestore.Query.DESCENDING)
 
+        # For non-admin users, we need to filter by published date
+        # Firestore query can't evaluate dates directly, so we'll filter client-side
+        if not is_admin:
+            print("Non-admin access - will filter published items after query")
+        
         if featured:
+            print("Filtering by featured items")
             query = query.where("featured", "==", True)
 
+        # Handle pagination
         if last_visible:
             try:
                 last_doc = get_firestore_client().collection("portfolio").document(last_visible).get()
@@ -190,15 +215,35 @@ def get_portfolio(req: https_fn.Request) -> https_fn.Response:
                 print(f"Error with pagination: {e}")
                 return add_cors_headers(create_json_response({"error": "Invalid pagination cursor"}, 400))
 
-        query = query.limit(page_size)
+        # Apply limit and execute query - we'll fetch more than needed for non-admin filtering
+        actual_limit = page_size * 3 if not is_admin else page_size
+        query = query.limit(actual_limit)
         docs = list(query.stream())
-        items = [{"id": doc.id, **doc.to_dict()} for doc in docs]
+        
+        # Convert to dictionaries with IDs
+        all_items = [{"id": doc.id, **doc.to_dict()} for doc in docs]
+        
+        # Apply published date filtering for non-admin users
+        if not is_admin:
+            today = datetime.now().date()
+            items = []
+            for item in all_items:
+                published_date = item.get('publishedDate')
+                if published_date and is_published(published_date):
+                    items.append(item)
+                    if len(items) >= page_size:
+                        break
+        else:
+            items = all_items[:page_size]
+        
+        # Log summary of results
+        print(f"Retrieved {len(items)} portfolio items after filtering")
         
         # Prepare response
         response_data = {
             "data": {
                 "items": items,
-                "lastVisible": docs[-1].id if docs else None
+                "lastVisible": items[-1]["id"] if items else None
             }
         }
         
@@ -206,4 +251,191 @@ def get_portfolio(req: https_fn.Request) -> https_fn.Response:
         
     except Exception as e:
         print(f"Error in get_portfolio: {e}")
+        return add_cors_headers(create_json_response({"error": str(e)}, 500))
+
+def is_published(published_date) -> bool:
+    """
+    Check if published date is today or earlier.
+    
+    Args:
+        published_date: Can be a string date in YYYY-MM-DD format, 
+                       a datetime object, or None
+    
+    Returns:
+        bool: True if the item should be considered published, False otherwise
+    """
+    if published_date is None:
+        return True  # Items without a published date are always visible
+    
+    today = datetime.now().date()
+    
+    # Handle different published_date types
+    try:
+        # If it's already a datetime object (like DatetimeWithNanoseconds from Firestore)
+        if hasattr(published_date, 'date'):
+            return published_date.date() <= today
+        
+        # If it's a string, parse it
+        if isinstance(published_date, str):
+            item_date = datetime.strptime(published_date, "%Y-%m-%d").date()
+            return item_date <= today
+            
+        # If we get here, it's an unknown type
+        print(f"Warning: Unknown published_date type: {type(published_date)}, value: {published_date}")
+        return True
+    except ValueError as e:
+        # If date format is invalid, log warning and default to showing the item
+        print(f"Warning: Invalid date format for publishedDate: {published_date}, error: {e}")
+        return True
+    except Exception as e:
+        # Catch any other errors, log them, and default to showing the item
+        print(f"Error processing publishedDate: {published_date}, error: {e}")
+        return True
+
+@https_fn.on_request(region=REGION)
+def create_portfolio_item(req: https_fn.Request) -> https_fn.Response:
+    """Create or update a portfolio item."""
+    if req.method == 'OPTIONS':
+        return handle_options(req)
+    
+    try:
+        # Parse the request data
+        data = json.loads(req.data.decode()) if req.data else {}
+        
+        # Get the actual parameters from the data field that Cloud Functions uses
+        item_data = data.get('data', {})
+        
+        print(f"Received portfolio item data: {item_data}")
+        
+        # Validate required fields
+        if not item_data.get('title') or not item_data.get('category') or not item_data.get('description'):
+            return add_cors_headers(create_json_response({"error": "Missing required fields"}, 400))
+            
+        # Prepare portfolio item data
+        portfolio_item = {
+            'title': item_data.get('title'),
+            'category': item_data.get('category'),
+            'description': item_data.get('description'),
+            'imageUrl': item_data.get('imageUrl'),
+            'link': item_data.get('link'),
+            'featured': bool(item_data.get('featured', False)),
+            'updatedAt': firestore.SERVER_TIMESTAMP
+        }
+        
+        # Ensure publishedDate is set correctly
+        published_date = item_data.get('publishedDate')
+        if published_date:
+            try:
+                # Validate date format
+                datetime.strptime(published_date, "%Y-%m-%d")
+                portfolio_item['publishedDate'] = published_date
+                print(f"Setting custom publishedDate: {published_date}")
+            except ValueError:
+                # Default to today if format is invalid
+                portfolio_item['publishedDate'] = datetime.now().strftime("%Y-%m-%d")
+                print(f"Invalid publishedDate format, using today's date: {portfolio_item['publishedDate']}")
+        else:
+            # Default to today if not provided
+            portfolio_item['publishedDate'] = datetime.now().strftime("%Y-%m-%d")
+            print(f"No publishedDate provided, using today's date: {portfolio_item['publishedDate']}")
+        
+        # Explicitly clear any existing date field to ensure we only use publishedDate
+        portfolio_item.pop('date', None)
+        
+        # Check if this is an update or new item
+        item_id = item_data.get('id')
+        
+        if item_id:
+            # Update existing item
+            doc_ref = get_firestore_client().collection('portfolio').document(item_id)
+            # For existing items, explicitly remove date field if it exists
+            doc_ref.update({'date': firestore.DELETE_FIELD})
+            doc_ref.update(portfolio_item)
+            portfolio_item['id'] = item_id
+            print(f"Updated portfolio item: {item_id}")
+        else:
+            # Create new item
+            portfolio_item['createdAt'] = firestore.SERVER_TIMESTAMP
+            doc_ref = get_firestore_client().collection('portfolio').document()
+            doc_ref.set(portfolio_item)
+            portfolio_item['id'] = doc_ref.id
+            print(f"Created portfolio item: {doc_ref.id}")
+        
+        # Replace SERVER_TIMESTAMP with current datetime for JSON serialization
+        response_item = portfolio_item.copy()
+        current_time = datetime.now().isoformat()
+        if 'updatedAt' in response_item:
+            response_item['updatedAt'] = current_time
+        if 'createdAt' in response_item:
+            response_item['createdAt'] = current_time
+        
+        # Log the final response being sent back to client
+        print(f"Sending response for portfolio item: {response_item}")
+            
+        return add_cors_headers(create_json_response({"data": response_item}))
+        
+    except Exception as e:
+        print(f"Error in create_portfolio_item: {e}")
+        return add_cors_headers(create_json_response({"error": str(e)}, 500))
+
+@https_fn.on_request(region=REGION)
+def delete_portfolio_item(req: https_fn.Request) -> https_fn.Response:
+    """Delete a portfolio item by ID."""
+    if req.method == 'OPTIONS':
+        return handle_options(req)
+    
+    try:
+        # Parse the request data
+        data = json.loads(req.data.decode()) if req.data else {}
+        
+        # Get the actual parameters from the data field
+        params = data.get('data', {})
+        item_id = params.get('id')
+        
+        if not item_id:
+            return add_cors_headers(create_json_response({"error": "Missing item ID"}, 400))
+        
+        # Get the item to check if it exists and retrieve the image URL
+        doc_ref = get_firestore_client().collection('portfolio').document(item_id)
+        item = doc_ref.get()
+        
+        if not item.exists:
+            return add_cors_headers(create_json_response({"error": "Portfolio item not found"}, 404))
+        
+        # Check if there's an image to delete
+        item_data = item.to_dict()
+        image_url = item_data.get('imageUrl')
+        
+        # Delete from Firestore
+        doc_ref.delete()
+        print(f"Deleted portfolio item {item_id} from Firestore")
+        
+        # Try to delete the associated image if it exists
+        if image_url:
+            try:
+                # Convert HTTP URL to storage path
+                # Format is typically: https://storage.googleapis.com/PROJECT_ID.appspot.com/path/to/image
+                if 'storage.googleapis.com' in image_url:
+                    # Extract path after the domain and bucket name
+                    path_parts = image_url.split('appspot.com/')
+                    if len(path_parts) > 1:
+                        storage_path = path_parts[1]
+                        bucket = storage.bucket()
+                        blob = bucket.blob(storage_path)
+                        blob.delete()
+                        print(f"Deleted image at {storage_path}")
+            except Exception as img_error:
+                # Log error but don't fail the whole operation
+                print(f"Warning: Could not delete image {image_url}: {img_error}")
+        
+        return add_cors_headers(create_json_response({
+            "data": {
+                "success": True,
+                "id": item_id,
+                "message": "Portfolio item successfully deleted"
+            }
+        }))
+        
+    except Exception as e:
+        print(f"Error in delete_portfolio_item: {e}")
         return add_cors_headers(create_json_response({"error": str(e)}, 500))
