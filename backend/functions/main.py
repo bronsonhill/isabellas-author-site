@@ -115,7 +115,7 @@ def get_blogs(req: https_fn.Request) -> https_fn.Response:
             
         page_size = int(params.get('pageSize', 3))
         last_visible = params.get('lastVisible')
-        query = get_firestore_client().collection('blog').order_by('date', direction=firestore.Query.DESCENDING)
+        query = get_firestore_client().collection('blog').order_by('publishedDate', direction=firestore.Query.DESCENDING)
         
         if last_visible:
             try:
@@ -438,4 +438,205 @@ def delete_portfolio_item(req: https_fn.Request) -> https_fn.Response:
         
     except Exception as e:
         print(f"Error in delete_portfolio_item: {e}")
+        return add_cors_headers(create_json_response({"error": str(e)}, 500))
+
+@https_fn.on_request(region=REGION)
+def create_blog_post(req: https_fn.Request) -> https_fn.Response:
+    """Create a new blog post."""
+    if req.method == 'OPTIONS':
+        return handle_options(req)
+    
+    try:
+        # Parse the request data
+        data = json.loads(req.data.decode()) if req.data else {}
+        
+        # Get the actual parameters from the data field that Cloud Functions uses
+        blog_data = data.get('data', {})
+        
+        print(f"Received blog post data: {blog_data}")
+        
+        # Validate required fields
+        if not blog_data.get('title') or not blog_data.get('content'):
+            return add_cors_headers(create_json_response({"error": "Missing required fields"}, 400))
+            
+        # Prepare blog post data
+        blog_post = {
+            'title': blog_data.get('title'),
+            'content': blog_data.get('content'),
+            'imageUrl': blog_data.get('imageUrl'),
+            'updatedAt': firestore.SERVER_TIMESTAMP,
+            'tag': blog_data.get('tag')
+        }
+        
+        # Handle publishedDate field
+        published_date = blog_data.get('date') or blog_data.get('publishedDate')
+        if published_date:
+            try:
+                # Store date as provided (should be ISO format)
+                blog_post['publishedDate'] = published_date
+                print(f"Setting blog publishedDate: {published_date}")
+            except ValueError:
+                # Default to now if format is invalid
+                blog_post['publishedDate'] = datetime.now().isoformat()
+                print(f"Invalid date format, using current time: {blog_post['publishedDate']}")
+        else:
+            # Default to now if not provided
+            blog_post['publishedDate'] = datetime.now().isoformat()
+            print(f"No publishedDate provided, using current time: {blog_post['publishedDate']}")
+            
+        # For backward compatibility, also set date field to same value
+        blog_post['date'] = blog_post['publishedDate']
+        
+        # Create new blog post
+        blog_post['createdAt'] = firestore.SERVER_TIMESTAMP
+        doc_ref = get_firestore_client().collection('blog').document()
+        doc_ref.set(blog_post)
+        blog_post['id'] = doc_ref.id
+        print(f"Created blog post: {doc_ref.id}")
+        
+        # Replace SERVER_TIMESTAMP with current datetime for JSON serialization
+        response_item = blog_post.copy()
+        current_time = datetime.now().isoformat()
+        if 'updatedAt' in response_item:
+            response_item['updatedAt'] = current_time
+        if 'createdAt' in response_item:
+            response_item['createdAt'] = current_time
+        
+        return add_cors_headers(create_json_response({"data": response_item}))
+        
+    except Exception as e:
+        print(f"Error in create_blog_post: {e}")
+        return add_cors_headers(create_json_response({"error": str(e)}, 500))
+
+@https_fn.on_request(region=REGION)
+def update_blog_post(req: https_fn.Request) -> https_fn.Response:
+    """Update an existing blog post."""
+    if req.method == 'OPTIONS':
+        return handle_options(req)
+    
+    try:
+        # Parse the request data
+        data = json.loads(req.data.decode()) if req.data else {}
+        
+        # Get the actual parameters from the data field
+        blog_data = data.get('data', {})
+        blog_id = blog_data.get('id')
+        
+        print(f"Updating blog post with data: {blog_data}")
+        
+        if not blog_id:
+            return add_cors_headers(create_json_response({"error": "Missing blog post ID"}, 400))
+            
+        # Validate required fields
+        if not blog_data.get('title') or not blog_data.get('content'):
+            return add_cors_headers(create_json_response({"error": "Missing required fields"}, 400))
+            
+        # Check if the blog post exists
+        doc_ref = get_firestore_client().collection('blog').document(blog_id)
+        doc = doc_ref.get()
+        
+        if not doc.exists:
+            return add_cors_headers(create_json_response({"error": "Blog post not found"}, 404))
+            
+        # Prepare update data
+        update_data = {
+            'title': blog_data.get('title'),
+            'content': blog_data.get('content'),
+            'updatedAt': firestore.SERVER_TIMESTAMP
+        }
+        
+        # Handle tag field
+        if 'tag' in blog_data:
+            update_data['tag'] = blog_data.get('tag')
+        
+        # Handle optional fields
+        if 'imageUrl' in blog_data:
+            update_data['imageUrl'] = blog_data.get('imageUrl')
+            
+        # Handle publishedDate field
+        if 'date' in blog_data or 'publishedDate' in blog_data:
+            published_date = blog_data.get('publishedDate') or blog_data.get('date')
+            update_data['publishedDate'] = published_date
+            # For backward compatibility
+            update_data['date'] = published_date
+            
+        # Update the document
+        doc_ref.update(update_data)
+        print(f"Updated blog post: {blog_id}")
+        
+        # Get the updated document for the response
+        updated_doc = doc_ref.get()
+        updated_data = updated_doc.to_dict()
+        updated_data['id'] = blog_id
+        
+        # Replace SERVER_TIMESTAMP with current datetime for JSON serialization
+        if 'updatedAt' in updated_data and isinstance(updated_data['updatedAt'], firestore.SERVER_TIMESTAMP.__class__):
+            updated_data['updatedAt'] = datetime.now().isoformat()
+            
+        return add_cors_headers(create_json_response({"data": updated_data}))
+        
+    except Exception as e:
+        print(f"Error in update_blog_post: {e}")
+        return add_cors_headers(create_json_response({"error": str(e)}, 500))
+
+@https_fn.on_request(region=REGION)
+def delete_blog_post(req: https_fn.Request) -> https_fn.Response:
+    """Delete a blog post by ID."""
+    if req.method == 'OPTIONS':
+        return handle_options(req)
+    
+    try:
+        # Parse the request data
+        data = json.loads(req.data.decode()) if req.data else {}
+        
+        # Get the actual parameters from the data field
+        params = data.get('data', {})
+        blog_id = params.get('id')
+        
+        if not blog_id:
+            return add_cors_headers(create_json_response({"error": "Missing blog post ID"}, 400))
+        
+        # Get the blog post to check if it exists and retrieve the image URL
+        doc_ref = get_firestore_client().collection('blog').document(blog_id)
+        doc = doc_ref.get()
+        
+        if not doc.exists:
+            return add_cors_headers(create_json_response({"error": "Blog post not found"}, 404))
+        
+        # Check if there's an image to delete
+        blog_data = doc.to_dict()
+        image_url = blog_data.get('imageUrl')
+        
+        # Delete from Firestore
+        doc_ref.delete()
+        print(f"Deleted blog post {blog_id} from Firestore")
+        
+        # Try to delete the associated image if it exists
+        if image_url:
+            try:
+                # Convert HTTP URL to storage path
+                # Format is typically: https://storage.googleapis.com/PROJECT_ID.appspot.com/path/to/image
+                if 'storage.googleapis.com' in image_url:
+                    # Extract path after the domain and bucket name
+                    path_parts = image_url.split('appspot.com/')
+                    if len(path_parts) > 1:
+                        storage_path = path_parts[1]
+                        bucket = storage.bucket()
+                        blob = bucket.blob(storage_path)
+                        blob.delete()
+                        print(f"Deleted blog image at {storage_path}")
+            except Exception as img_error:
+                # Log error but don't fail the whole operation
+                print(f"Warning: Could not delete blog image {image_url}: {img_error}")
+        
+        return add_cors_headers(create_json_response({
+            "data": {
+                "success": True,
+                "id": blog_id,
+                "message": "Blog post successfully deleted"
+            }
+        }))
+        
+    except Exception as e:
+        print(f"Error in delete_blog_post: {e}")
         return add_cors_headers(create_json_response({"error": str(e)}, 500))

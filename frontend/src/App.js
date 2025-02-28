@@ -7,20 +7,25 @@ import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
 import BlogPost from './components/BlogPage/BlogPost';
 import Layout from './components/Layout';
+import { AuthProvider } from './contexts/AuthContext';
+import Login from './pages/Login';
 
 const App = () => {
   return (
     <div className="app">
-      <Router>
-        <Layout>
-          <Routes>
-            <Route exact path="/" element={<Home />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/blogs" element={<Blog />} />
-            <Route path="/blogs/:id" element={<BlogPost />} />
-          </Routes>
-        </Layout>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <Layout>
+            <Routes>
+              <Route exact path="/" element={<Home />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/blogs" element={<Blog />} />
+              <Route path="/blogs/:id" element={<BlogPost />} />
+              <Route path="/login" element={<Login />} />
+            </Routes>
+          </Layout>
+        </Router>
+      </AuthProvider>
     </div>
   );
 };
