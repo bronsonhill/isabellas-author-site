@@ -1,0 +1,13 @@
+/* Styles for PortfolioItemEditor component */
+@import '../common/EditorStyles.css';
+
+/* Portfolio editor specific styles */
+.portfolio-editor-container {
+  composes: editor-container;
+}
+
+.portfolio-editor-form {
+  composes: editor-form;
+}
+
+/* Keep any specific overrides below if needed */

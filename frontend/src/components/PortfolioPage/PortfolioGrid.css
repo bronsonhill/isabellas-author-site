@@ -1,0 +1,85 @@
+@import '../common/ButtonStyles.css';
+
+.portfolio-section {
+    margin: 2rem 0 4rem;
+}
+
+.portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+.portfolio-item-container, .portfolio-item-link {
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.portfolio-item-container:hover .edit-button,
+.portfolio-item-link:hover .edit-button {
+    opacity: 1;
+}
+
+.portfolio-loader {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 0;
+    height: 100px;
+}
+
+.loader-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--color-terracotta);
+    animation: spin 1s ease-in-out infinite;
+    position: relative;
+    font-size: 0;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    grid-column: 1 / -1;
+}
+
+.load-more-button {
+    padding: 0.8rem 1.5rem;
+    background-color: var(--color-terra);
+    color: var(--color-twilight);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.load-more-button:hover:not(:disabled) {
+    background-color: var(--color-twilight);
+    color: var(--color-sandstone-beige);
+}
+
+.load-more-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .portfolio-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin: 1rem auto;
+    }
+}
