@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchBlogPosts } from '../../services/firebase';
 import BlogCard from './BlogCard';
 import './BlogList.css';
 
 /**
- * BlogList component displays a paginated list of blog posts with infinite scroll
+ * BlogList component displays a list of blog posts with infinite scroll
+ * Automatically loads more posts when user scrolls to the bottom
  * Handles loading states, errors, and animations for new posts
  */
-const BlogList = () => {
+const BlogList = ({ onEditPost }) => {
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     const [lastVisible, setLastVisible] = useState(null);
@@ -16,7 +17,10 @@ const BlogList = () => {
     const [error, setError] = useState(null);
     const [animateFrom, setAnimateFrom] = useState(0);
     const [hasMore, setHasMore] = useState(true);
-    const itemsPerPage = 3;
+    const observerRef = useRef(null);
+    const loaderRef = useRef(null);
+    const ITEMS_PER_PAGE = 3;
+    const isAdmin = Boolean(onEditPost);
 
     useEffect(() => {
         loadInitialPosts();
@@ -24,22 +28,22 @@ const BlogList = () => {
 
     // Update animateFrom whenever posts length changes
     useEffect(() => {
-        setAnimateFrom(posts.length - (posts.length % itemsPerPage || itemsPerPage));
+        setAnimateFrom(posts.length - (posts.length % ITEMS_PER_PAGE || ITEMS_PER_PAGE));
     }, [posts.length]);
 
     const loadInitialPosts = async () => {
         try {
             setLoading(true);
-            const result = await fetchBlogPosts(itemsPerPage);
-            console.log('Initial posts loaded:', result);
+            const result = await fetchBlogPosts(ITEMS_PER_PAGE);
+            
             if (result?.error) {
                 throw new Error(result.error);
             }
+            
             setPosts(result?.items || []);
             setLastVisible(result?.lastVisible);
             setHasMore(result?.lastVisible !== null);
         } catch (err) {
-            console.error('Error loading blog posts:', err);
             setError(err?.message || 'Failed to load blog posts');
         } finally {
             setLoading(false);
@@ -47,24 +51,24 @@ const BlogList = () => {
     };
 
     const handleCardClick = (e, blog) => {
-        if (e.target.className === 'read-more') {
-            return;
+        // Check if the edit button was clicked
+        if (e.target.closest('.blog-card-edit-btn')) {
+            e.stopPropagation();
+            if (onEditPost) {
+                onEditPost(blog);
+            }
+        } else {
+            navigate(`/blogs/${blog.id}`, { state: { blog } });
         }
-        navigate(`/blogs/${blog.id}`, { state: { blog } });
     };
 
-    const handleReadMore = (e, blog) => {
-        e.stopPropagation();
-        navigate(`/blogs/${blog.id}`, { state: { blog } });
-    };
-
-    const showMoreItems = async () => {
+    const loadMorePosts = useCallback(async () => {
         if (!hasMore || loading) return;
-
+        
         try {
             setLoading(true);
             setAnimateFrom(posts.length);
-            const result = await fetchBlogPosts(itemsPerPage, lastVisible);
+            const result = await fetchBlogPosts(ITEMS_PER_PAGE, lastVisible);
             
             if (result?.error) {
                 throw new Error(result.error);
@@ -78,12 +82,45 @@ const BlogList = () => {
                 setHasMore(false);
             }
         } catch (err) {
-            console.error('Error loading more posts:', err);
             setError(err?.message || 'Failed to load more posts');
         } finally {
             setLoading(false);
         }
-    };
+    }, [hasMore, loading, posts.length, lastVisible]);
+
+    // Setup IntersectionObserver to detect when user scrolls to loader element
+    useEffect(() => {
+        if (loading) return;
+
+        // Disconnect any existing observer
+        if (observerRef.current) {
+            observerRef.current.disconnect();
+        }
+
+        // Create a new observer
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && hasMore) {
+                    loadMorePosts();
+                }
+            },
+            { threshold: 0.1 }
+        );
+        
+        observerRef.current = observer;
+        
+        // Observe the loader element if it exists and we have more content
+        if (loaderRef.current && hasMore) {
+            observer.observe(loaderRef.current);
+        }
+
+        // Cleanup
+        return () => {
+            if (observerRef.current) {
+                observerRef.current.disconnect();
+            }
+        };
+    }, [loading, hasMore, loadMorePosts]);
 
     if (error) {
         return (
@@ -101,24 +138,32 @@ const BlogList = () => {
     return (
         <div className="blog-list">
             {posts.map((blog, index) => (
-                <BlogCard
-                    key={blog.id}
-                    blog={blog}
-                    onCardClick={handleCardClick}
-                    onReadMore={handleReadMore}
-                    shouldAnimate={index >= animateFrom}
-                />
+                <div key={blog.id} className="blog-card-container">
+                    <BlogCard
+                        blog={blog}
+                        onCardClick={handleCardClick}
+                        shouldAnimate={index >= animateFrom}
+                    />
+                    {isAdmin && (
+                        <button 
+                            className="blog-card-edit-btn" 
+                            onClick={(e) => handleCardClick(e, blog)}
+                            aria-label={`Edit ${blog.title}`}
+                        >
+                            Edit
+                        </button>
+                    )}
+                </div>
             ))}
+            
+            {/* Invisible loading indicator that triggers more content when scrolled into view */}
             {hasMore && (
-                <div className="load-more-container">
-                    <button 
-                        className="load-more-button"
-                        onClick={showMoreItems}
-                        disabled={loading}
-                        aria-label="Load more blog posts"
-                    >
-                        {loading ? 'Loading...' : 'Load More'}
-                    </button>
+                <div 
+                    className="blog-list-loader" 
+                    ref={loaderRef}
+                    aria-hidden="true"
+                >
+                    {loading && <div className="loader-spinner">Loading...</div>}
                 </div>
             )}
         </div>

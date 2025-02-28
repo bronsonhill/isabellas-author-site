@@ -11,6 +11,8 @@
     text-align: center;
     margin-bottom: 2rem;
     background-color: var(--color-sandstone-beige);
+    position: relative;
+    padding-bottom: 1rem;
 }
 
 .blog-header h1 {
@@ -18,12 +20,25 @@
     font-family: var(--font-family);
     font-size: 2.5rem;
     margin-bottom: 0.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.blog-header h1::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 2px;
+    background-color: var(--color-terracotta);
 }
 
 .blog-header .blog-date {
     color: var(--color-twilight);
     font-size: 1rem;
-    margin: 0;
+    margin: 1rem 0 0;
 }
 
 .blog-post-image {
@@ -75,8 +90,19 @@
     .blog-header h1 {
         font-size: 2rem;
     }
+    
+    .blog-header h1::after {
+        width: 60px;
+    }
 
     .blog-post-image {
         height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-header h1::after {
+        width: 40px;
+        height: 1px;
     }
 }
