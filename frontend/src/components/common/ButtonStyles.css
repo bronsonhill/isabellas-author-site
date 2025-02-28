@@ -1,0 +1,178 @@
+/* Common Button Styles */
+
+/* Primary action buttons */
+.primary-button, 
+.create-blog-btn, 
+.add-portfolio-item,
+.submit-button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-terracotta);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-family);
+}
+
+.primary-button:hover, 
+.create-blog-btn:hover, 
+.add-portfolio-item:hover,
+.submit-button:hover {
+  background-color: var(--color-meadow);
+}
+
+.primary-button:disabled, 
+.create-blog-btn:disabled, 
+.add-portfolio-item:disabled,
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Secondary action buttons */
+.secondary-button,
+.cancel-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #f1f1f1;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-family);
+}
+
+.secondary-button:hover,
+.cancel-button:hover {
+  background-color: #e0e0e0;
+}
+
+.secondary-button:disabled,
+.cancel-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Danger buttons */
+.danger-button,
+.delete-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #fff0f0;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-family);
+}
+
+.danger-button:hover,
+.delete-button:hover {
+  background-color: #ffebee;
+}
+
+.danger-button:disabled,
+.delete-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Confirm delete button */
+.confirm-delete-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-family);
+}
+
+.confirm-delete-button:hover {
+  background-color: #b71c1c;
+}
+
+.confirm-delete-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Cancel delete button */
+.cancel-delete-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #f1f1f1;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-family);
+}
+
+.cancel-delete-button:hover {
+  background-color: #e0e0e0;
+}
+
+.cancel-delete-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Edit buttons */
+.edit-button, 
+.blog-card-edit-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--color-twilight);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  opacity: 0;
+  z-index: 10;
+  font-family: var(--font-family);
+}
+
+.edit-button:hover, 
+.blog-card-edit-btn:hover {
+  background-color: var(--color-terracotta);
+}
+
+/* Button spacing */
+.button-group,
+.form-actions-right,
+.delete-confirmation-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .button-group,
+  .form-actions-right,
+  .delete-confirmation-buttons {
+    flex-direction: column;
+  }
+  
+  .primary-button, 
+  .secondary-button, 
+  .danger-button,
+  .submit-button,
+  .cancel-button,
+  .delete-button,
+  .confirm-delete-button,
+  .cancel-delete-button {
+    width: 100%;
+  }
+}

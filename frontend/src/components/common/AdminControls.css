@@ -1,0 +1,15 @@
+@import './ButtonStyles.css';
+
+.admin-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin: 1rem 0;
+}
+
+.admin-controls button {
+    composes: primary-button;
+}
+
+.admin-controls button + button {
+    margin-left: 0.5rem;
+}
